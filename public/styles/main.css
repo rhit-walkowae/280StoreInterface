@@ -1,0 +1,28 @@
+body {
+  background: #dddddd;
+}
+
+.navbar {
+  background-color: #800000;
+  color: white;
+}
+.navbar-brand {
+  color: white;
+}
+.navbar-toggler {
+  color: white;
+}
+.navbar-nav {
+  margin-left: auto;
+  margin-right: 0;
+}
+.btn {
+  float: right;
+  margin-left: 50px;
+  color: white;
+  background-color: transparent;
+}
+
+.page-container {
+  margin-top: 75px;
+}
