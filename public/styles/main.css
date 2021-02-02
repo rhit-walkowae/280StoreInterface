@@ -26,3 +26,14 @@ body {
 .page-container {
   margin-top: 75px;
 }
+.d-block {
+  border-style: solid;
+}
+.carousel {
+  display: block;
+  margin: 1px auto;
+}
+#aboutSection {
+  display: block;
+  margin: auto;
+}
