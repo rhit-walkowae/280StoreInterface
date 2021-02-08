@@ -17,8 +17,6 @@ body {
   margin-right: 0;
 }
 .btn {
-  float: right;
-  margin-left: 50px;
   color: white;
   background-color: transparent;
 }
@@ -34,6 +32,14 @@ body {
   margin: 1px auto;
 }
 #aboutSection {
+  display: block;
+  margin: auto;
+}
+#logInButton{
+  display: block;
+  margin: auto auto  20px auto;
+}
+#createAccountButton{
   display: block;
   margin: auto;
 }
