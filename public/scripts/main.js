@@ -11,27 +11,39 @@ var rhit = rhit || {};
 
 /** globals */
 rhit.variableName = "";
-
-/** function and class syntax examples */
-rhit.functionName = function () {
-	/** function body */
-};
-
-rhit.ClassName = class {
+// !----------------------Store Page Controller ------------------------
+rhit.StorePageController = class {
 	constructor() {
+		document.querySelector("#signInBtn").addEventListener("click", (event) => {
 
-	}
-
-	methodName() {
+			window.location.href = `/signin.html`;
+		});
 
 	}
 }
 
-/* Main */
+
+// ! ----------------------Intializing pages function-------------------------------------------
+rhit.initializePage = function () {
+	//console.log("-----intializing-------");
+	if (document.querySelector("#signInPage")) {
+		//console.log("On the login page");
+		rhit.startFirebaseUI();
+		new rhit.signInPageController();
+	}
+	if (document.querySelector("#storePage")) {
+		//console.log("On the login page");
+		new rhit.StorePageController();
+	}
+
+
+}
+//! ------------------Main -----------------/
 /** function and class syntax examples */
 rhit.main = function () {
 	console.log("Ready4");
-	rhit.startFirebaseUI();
+	rhit.initializePage();
+
 };
 
 rhit.startFirebaseUI = function () {
@@ -39,7 +51,7 @@ rhit.startFirebaseUI = function () {
 	//if (!this.fbAuthManager.isSignedIn) {
 
 	var uiConfig = {
-		signInSuccessUrl: '/homepage.html',
+		signInSuccessUrl: '/',
 		//signInSuccessUrl: function () {this.fbAuthManager.signIn();},
 		signInOptions: [
 			// Leave the lines as is for the providers you want to offer your users.

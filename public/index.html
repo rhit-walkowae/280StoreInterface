@@ -1,76 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, shrink-to-fit=no"
-    />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons"
-    />
-    <link rel="stylesheet" href="styles/bootstrap-material-design.min.css" />
 
-    <link
-      type="text/css"
-      rel="stylesheet"
-      href="https://www.gstatic.com/firebasejs/ui/4.6.1/firebase-ui-auth.css"
-    />
-    <link rel="stylesheet" href="styles/main.css" />
-    <title>Bussiness Name</title>
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" />
+  <link rel="stylesheet" href="styles/bootstrap-material-design.min.css" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <title>App Name</title>
+</head>
 
-  <body>
-    <nav class="navbar navbar-dark fixed-top">
-      <a class="navbar-brand" href="#">Bussiness Name</a>
-    </nav>
-    <div id="signInPage" class="container page-container">
-      <div>
-        <h1 style="text-align: center; margin-bottom: 1em">Login</h1>
-        <div class="form-group">
-          <label for="InputEmail" class="bmd-label-floating"
-            >Email address
-          </label>
-          <input type="email" class="form-control" id="InputEmail" />
+<body>
+  <nav class="navbar navbar-expand-sm">
+    <a class="navbar-brand" href="#"><img id="bussinessLOGO" src="favicon.ico" width=15%>&nbsp;&nbsp;Bussiness Name</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+      <i class="material-icons"> menu</i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <button id="signInBtn" class="btn" type="button">
+          <i class="material-icons">person</i>&nbsp;&nbsp;&nbsp;Sign In
+          <button id="shoppingCartBtn" class="btn" type="button">
+            <i class="material-icons">shopping_cart</i>&nbsp;&nbsp;&nbsp;My Cart
+      </div>
+    </div>
+  </nav>
+  <div id="storePage" class="container page-container">
+    <div id="carousel" class="carousel slide" data-ride="carousel">
+      <ol class="carousel-indicators">
+        <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+      </ol>
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img class="d-block w-100" src="images/small-business-owner-on-tablet-stock.jpg" alt="First slide">
         </div>
-        <div class="form-group">
-          <label for="InputPassword" class="bmd-label-floating">Password</label>
-          <input type="password" class="form-control" id="InputPassword" />
+        <div class="carousel-item">
+          <img class="d-block w-100" src="images/thankyousmallB.jpeg" alt="Second slide">
         </div>
-        <div id="authButtons">
-          <button
-            id="logInButton"
-            type="button"
-            class="btn btn-primary btn-outline"
-          >
-            Log In to Exsisting Account
+        <div class="carousel-item">
+          <img class="d-block w-100" src="images/Sign1.jpeg" alt="Third slide">
+        </div>
+      </div>
+      <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="sr-only">Previous</span>
+      </a>
+      <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="sr-only">Next</span>
+      </a>
+    </div>
+    <div id="aboutSection">
+      <h5 class="text-center">ABOUT ...</h5>
+      <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni similique enim dolorem nemo voluptates
+        perspiciatis obcaecati, sed ex veniam vel nisi voluptas non cumque fugiat accusamus, nam minima esse quasi!</p>
+
+    </div>
+    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#cartDialog">
+      <i class="material-icons">shopping_cart</i>
+    </button>
+
+
+
+
+  </div>
+  <!--Modal Cart-->
+  <div class="modal fade" id="cartDialog" tabindex="-1" role="dialog" aria-labelledby="Add picture dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">YOUR CART</h5>
+        </div>
+        <div class="modal-body">
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="images/Sign1.jpeg" alt="Card image cap">
+            <div class="card-body">
+              <h5 class="card-title">Item Name</h5>
+              <p class="card-text">price $$$</p>
+              <a href="#" class="btn btn-primary">Delete Item</a>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Cancel
           </button>
-          <p style="text-align: center">OR</p>
-          <button
-            id="createAccountButton"
-            type="button"
-            class="btn btn-primary btn-outline"
-          >
-            Create Account
+          <button type="button" id="submitAddPicture" class="btn btn-primary" data-dismiss="modal">
+            ADD
           </button>
         </div>
       </div>
-      <div id="firebaseui-auth-container"></div>
     </div>
-    <script src="scripts/jquery.min.js"></script>
-    <script src="scripts/popper.js"></script>
-    <script src="scripts/bootstrap-material-design.js"></script>
-    <script>
-      $("body").bootstrapMaterialDesign();
-    </script>
-    <script src="/__/firebase/7.18.0/firebase-app.js"></script>
-    <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
-    <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
-    <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/ui/4.7.1/firebase-ui-auth.js"></script>
-    <script src="scripts/rosefire.min.js"></script>
-    <script src="/__/firebase/init.js"></script>
-    <script src="scripts/main.js"></script>
-  </body>
+  </div>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/popper.js"></script>
+  <script src="scripts/bootstrap-material-design.js"></script>
+  <script>
+    $("body").bootstrapMaterialDesign();
+  </script>
+  <script src="/__/firebase/7.18.0/firebase-app.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
+  <script src="scripts/rosefire.min.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  <script src="scripts/main.js"></script>
+</body>
+
 </html>
