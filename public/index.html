@@ -7,12 +7,14 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons" />
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css" />
   <link rel="stylesheet" href="styles/main.css" />
-  <title>App Name</title>
+  <title id="businessNameFillerTitle">App Name</title>
 </head>
 
 <body>
   <nav class="navbar navbar-expand-sm">
-    <a class="navbar-brand" href="#"><img id="bussinessLOGO" src="favicon.ico" width=15%>&nbsp;&nbsp;Bussiness Name</a>
+    <a id="businessNameFillerA" class="navbar-brand" href="#"><img id="bussinessLOGO" src="favicon.ico"
+        width=10%>&nbsp;&nbsp;Bussiness Name</a>
+
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
       aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <i class="material-icons"> menu</i>
@@ -44,21 +46,73 @@
           <img class="d-block w-100" src="images/Sign1.jpeg" alt="Third slide">
         </div>
       </div>
-      <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="sr-only">Previous</span>
-      </a>
-      <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="sr-only">Next</span>
-      </a>
+
     </div>
     <div id="aboutSection">
-      <h5 class="text-center">ABOUT ...</h5>
-      <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni similique enim dolorem nemo voluptates
+      <h5 id="businessNameFillerAbout" class="text-center">ABOUT ...</h5>
+      <p id="generalInfo">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Magni similique enim dolorem nemo
+        voluptates
         perspiciatis obcaecati, sed ex veniam vel nisi voluptas non cumque fugiat accusamus, nam minima esse quasi!</p>
 
     </div>
+    <hr>
+    <div class="text-center" style="margin-bottom: 20px;">
+      <h1>Products</h1>
+    </div>
+    <div id="productSelection">
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="images/Sign1.jpeg" alt="item name">
+            <div class="card-body">
+              <h5 class="card-title">Item Name</h5>
+              <p class="card-text">$Price.00</p>
+              <a href="#" class="btn btn-primary">Add to cart</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="images/Sign1.jpeg" alt="item name">
+            <div class="card-body">
+              <h5 class="card-title">Item Name</h5>
+              <p class="card-text">$Price.00</p>
+              <a href="#" class="btn btn-primary">Add to cart</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="images/Sign1.jpeg" alt="item name">
+            <div class="card-body">
+              <h5 class="card-title">Item Name</h5>
+              <p class="card-text">$Price.00</p>
+              <a href="#" class="btn btn-primary">Add to cart</a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="images/Sign1.jpeg" alt="item name">
+            <div class="card-body">
+              <h5 class="card-title">Item Name</h5>
+              <p class="card-text">$Price.00</p>
+              <a href="#" class="btn btn-primary">Add to cart</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div data>
+
+
+
+
+
+
+
+
     <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#cartDialog">
       <i class="material-icons">shopping_cart</i>
     </button>
@@ -66,6 +120,14 @@
 
 
 
+  </div>
+  <hr>
+  <div id="eventSection" class="text-center">
+    <h1> Events</h1>
+  </div>
+  <hr>
+  <div id="socialSection" class="text-center">
+    <h1>Connect with Bussiness Name</h1>
   </div>
   <!--Modal Cart-->
   <div class="modal fade" id="cartDialog" tabindex="-1" role="dialog" aria-labelledby="Add picture dialog"

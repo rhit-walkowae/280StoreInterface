@@ -13,7 +13,7 @@ body {
   color: white;
 }
 .navbar-nav {
-  margin-left: auto;
+  margin: auto;
   margin-right: 0;
 }
 .btn {
@@ -22,7 +22,7 @@ body {
 }
 
 .page-container {
-  margin-top: 75px;
+  margin-top: 20px;
 }
 .d-block {
   border-style: solid;
@@ -54,4 +54,21 @@ body {
 #fab:active {
   transform: translateY(2px);
   opacity: 0.8;
+}
+
+.card{
+  display: block;
+  margin: auto;
+  margin-bottom: 2em ;
+  max-width: 12rem ;
+}
+#productSelection{
+  max-height: 20rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+@media (min-width: 992px){
+.card {
+    max-width: 16rem ;
+}
 }
