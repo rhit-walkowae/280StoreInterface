@@ -9,6 +9,11 @@ body {
 .navbar-brand {
   color: white;
 }
+#bussinessLOGO{
+  width: 20;
+  height: 20;
+
+}
 .navbar-toggler {
   color: white;
 }
