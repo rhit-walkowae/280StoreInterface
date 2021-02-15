@@ -31,6 +31,13 @@ rhit.spManager = null;
 rhit.fbAuthManager = null;
 rhit.userManager = null;
 
+function htmlToElement(html) { 
+    var template = document.createElement('template');
+    html = html.trim();
+    template.innerHTML = html;
+    return template.content.firstChild;
+   }
+
 
 // * ------ Store Info Object contains all information for Store Main Page -------------------------------
 rhit.StoreInfoObject = class {
@@ -55,6 +62,11 @@ rhit.StorePageController = class {
 			console.log("hello going to adminpage");
 			window.location.href = `/adminpage.html`;
 		});
+		document.querySelector("#shoppingCartBtn").addEventListener("click", (event) => {
+			console.log("hello going to adminpage");
+			window.location.href = `/cart.html`;
+		});
+		
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
 	}
 	updateStoreInfo() {
@@ -72,6 +84,7 @@ rhit.StorePageController = class {
 		document.getElementById("generalInfo").innerHTML = store_info.generalInfo;
 
 	}
+
 
 }
 // !--------------------Store Page Manager -------------------------------------
@@ -213,6 +226,83 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 }
+// !-----------------------------Cart Page Controller ------------------------
+rhit.CartPageController = class {
+    constructor() {
+
+        // document.querySelector("#menuShowAllQuotes").addEventListener("click", (event) => {
+        //     console.log("Show all quotes");
+        //     window.location.href = "/list.html";
+        // });
+
+        // document.querySelector("#menuShowMyQuotes").addEventListener("click", (event) => {
+        //     console.log("Show my quotes");
+        //     window.location.href = `/list.html?uid=${rhit.fbAuthManager.uid}`;
+        // });
+
+        document.querySelector("#menuBack").addEventListener("click", (event) => {
+            window.location.href = "/";
+        });
+
+        document.querySelector("#submitAddQuote").addEventListener("click", (event) => {
+            const quote = document.querySelector("#inputQuote").value;
+            const movie = document.querySelector("#inputMovie").value;
+            rhit.fbMovieQuotesManager.add(quote, movie);
+        });
+
+        $("#addQuoteDialog").on("show.bs.modal", (event) => {
+            document.querySelector("#inputQuote").value = "";
+            document.querySelector("#inputMovie").value = "";
+        });
+    
+        $("#addQuoteDialog").on("shown.bs.modal", (event) => {
+            document.querySelector("#inputQuote").focus();
+        });
+
+        //start listening
+        rhit.fbMovieQuotesManager.beginListening(this.updateList.bind(this));
+    }
+
+    _createCard(movieQuote) {
+        return htmlToElement(`<div class="card">
+        <div class="card-body">
+          <h5 class="card-title">${movieQuote.quote}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">${movieQuote.movie}</h6>
+        </div>
+      </div>`);
+    }
+
+    updateList() {
+        console.log("i need to update");
+        console.log("num quotes = ", rhit.fbMovieQuotesManager.length);
+        console.log("ex quote: ", rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(0));
+
+        //make a new quoteListContainer
+        const newList = htmlToElement('<div id="quoteListContainer"></div>');
+        //fill with cards
+        for (let i = 0; i < rhit.fbMovieQuotesManager.length; i++) {
+            const mq = rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(i);
+            const newCard = this._createCard(mq);
+
+            newCard.onclick = (event) => {
+                // console.log(`You clicked on ${mq.id}`);
+                // rhit.storage.setMovieQuoteID(mq.id);
+
+                window.location.href = `/moviequote.html?id=${mq.id}`;
+            }
+
+            newList.appendChild(newCard);
+        }
+        //remove old container
+        const oldList = document.querySelector("#quoteListContainer");
+        oldList.removeAttribute("id");
+        oldList.hidden = true;
+        //put in new container
+        oldList.parentElement.appendChild(newList);
+    }
+}
+
+
 // ! ----------------------Intializing pages function-------------------------------------------
 rhit.initializePage = function () {
 	console.log("-----intializing-------");
@@ -224,6 +314,11 @@ rhit.initializePage = function () {
 	}
 	if (document.querySelector("#storePage")) {
 		//console.log("On the login page");
+		rhit.spManager = new rhit.SPManager();
+		new rhit.StorePageController();
+	}
+
+	if (document.querySelector("#cartPage")) {
 		rhit.spManager = new rhit.SPManager();
 		new rhit.StorePageController();
 	}
