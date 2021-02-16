@@ -32,12 +32,12 @@ rhit.fbAuthManager = null;
 rhit.userManager = null;
 rhit.fbItemsManager = null;
 
-function htmlToElement(html) { 
-    var template = document.createElement('template');
-    html = html.trim();
-    template.innerHTML = html;
-    return template.content.firstChild;
-   }
+function htmlToElement(html) {
+	var template = document.createElement('template');
+	html = html.trim();
+	template.innerHTML = html;
+	return template.content.firstChild;
+}
 
 
 // * ------ Store Info Object contains all information for Store Main Page -------------------------------
@@ -67,7 +67,7 @@ rhit.StorePageController = class {
 			console.log("hello going to adminpage");
 			window.location.href = `/cart.html`;
 		});
-		
+
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
 		rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
 	}
@@ -87,7 +87,7 @@ rhit.StorePageController = class {
 
 	}
 
-	_createCard(item){
+	_createCard(item) {
 		return htmlToElement(`<div class="col-md-4">
 		<div class="card" style="width: 18rem;">
 		  <img class="card-img-top" src=${item.image} alt="item name">
@@ -100,11 +100,11 @@ rhit.StorePageController = class {
 	  </div>`);
 	}
 
-	updateItems(){
+	updateItems() {
 		console.log("update items called");
 		const newItems = htmlToElement('<div id="productSelection"></div>');
 		console.log("items collection length: ", rhit.fbItemsManager.length);
-		for(let i = 0; i < rhit.fbItemsManager.length; i++){
+		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
 			const item = rhit.fbItemManager.getItemAtIndex(i);
 			const newCard = this._createCard(item);
 			newCard.onclick = (event) => {
@@ -158,6 +158,14 @@ rhit.SPManager = class {
 	get length() {
 		return this._documentSnapshot.length;
 	}
+	updateLogoUrl(url) {
+		this._ref.doc("singleton").set({
+			[rhit.STORE_KEY_LOGO]: url
+		}).catch((error) => {
+			console.log(`error writing document:`, error);
+		});
+
+	}
 	setStoreInfo() {
 		console.log('typeof docSnapshot :>> ', this._documentSnapshot);
 		const docSnapshot = this._documentSnapshot[0];
@@ -183,7 +191,7 @@ rhit.SignInPageController = class {
 	constructor() {
 		rhit.spManager.beginListening(this.updateSignPageInfo.bind(this));
 	}
-	updateSignPageInfo(){
+	updateSignPageInfo() {
 		const store_info = rhit.spManager.setStoreInfo();
 		console.log('typeof store_info :>> ', store_info.businessName);
 		document.getElementById("businessNameFillerTitle").innerHTML = store_info.businessName;
@@ -262,10 +270,9 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 }
-
 // !-----------------------------Item ------------------------
 rhit.Item = class {
-	constructor(id, available, image, name, handmade, price, description){
+	constructor(id, available, image, name, handmade, price, description) {
 		this.id = id;
 		this.available = available;
 		this.image = image;
@@ -275,7 +282,6 @@ rhit.Item = class {
 		this.description = description;
 	}
 }
-
 // !-----------------------------Firebase Items ------------------------
 rhit.FbItemsManager = class {
 	constructor() {
@@ -284,7 +290,7 @@ rhit.FbItemsManager = class {
 		this.ref = firebase.firestore().collection("Items");
 		this._unsubscribe = null;
 	}
-	add(image, name, handmade, price, description){
+	add(image, name, handmade, price, description) {
 		this.ref.add({
 			["price"]: price,
 			["image"]: image,
@@ -306,109 +312,137 @@ rhit.FbItemsManager = class {
 		});
 	}
 
-	stopListening(){
+	stopListening() {
 		this._unsubscribe();
 	}
 
-	getItemAtIndex(index){
+	getItemAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
 		const item = new rhit.Item(docSnapshot.id, docSnapshot.get("available"), docSnapshot.get("image"), docSnapshot.get("name"), docSnapshot.get("handmade"), docSnapshot.get("price"), docSnapshot.get("description"));
 		return item;
 	}
 
 }
-
 // !-----------------------------Cart Page Controller ------------------------
 rhit.CartPageController = class {
-    constructor() {
+	constructor() {
 
-        // document.querySelector("#menuShowAllQuotes").addEventListener("click", (event) => {
-        //     console.log("Show all quotes");
-        //     window.location.href = "/list.html";
-        // });
+		// document.querySelector("#menuShowAllQuotes").addEventListener("click", (event) => {
+		//     console.log("Show all quotes");
+		//     window.location.href = "/list.html";
+		// });
 
-        // document.querySelector("#menuShowMyQuotes").addEventListener("click", (event) => {
-        //     console.log("Show my quotes");
-        //     window.location.href = `/list.html?uid=${rhit.fbAuthManager.uid}`;
-        // });
+		// document.querySelector("#menuShowMyQuotes").addEventListener("click", (event) => {
+		//     console.log("Show my quotes");
+		//     window.location.href = `/list.html?uid=${rhit.fbAuthManager.uid}`;
+		// });
 
-        document.querySelector("#menuBack").addEventListener("click", (event) => {
-            window.location.href = "/";
-        });
+		document.querySelector("#menuBack").addEventListener("click", (event) => {
+			window.location.href = "/";
+		});
 
-        document.querySelector("#submitAddQuote").addEventListener("click", (event) => {
-            const quote = document.querySelector("#inputQuote").value;
-            const movie = document.querySelector("#inputMovie").value;
-            rhit.fbMovieQuotesManager.add(quote, movie);
-        });
+		document.querySelector("#submitAddQuote").addEventListener("click", (event) => {
+			const quote = document.querySelector("#inputQuote").value;
+			const movie = document.querySelector("#inputMovie").value;
+			rhit.fbMovieQuotesManager.add(quote, movie);
+		});
 
-        $("#addQuoteDialog").on("show.bs.modal", (event) => {
-            document.querySelector("#inputQuote").value = "";
-            document.querySelector("#inputMovie").value = "";
-        });
-    
-        $("#addQuoteDialog").on("shown.bs.modal", (event) => {
-            document.querySelector("#inputQuote").focus();
-        });
+		$("#addQuoteDialog").on("show.bs.modal", (event) => {
+			document.querySelector("#inputQuote").value = "";
+			document.querySelector("#inputMovie").value = "";
+		});
 
-        //start listening
-        rhit.fbMovieQuotesManager.beginListening(this.updateList.bind(this));
-    }
+		$("#addQuoteDialog").on("shown.bs.modal", (event) => {
+			document.querySelector("#inputQuote").focus();
+		});
 
-    _createCard(movieQuote) {
-        return htmlToElement(`<div class="card">
+		//start listening
+		rhit.fbMovieQuotesManager.beginListening(this.updateList.bind(this));
+	}
+
+	_createCard(movieQuote) {
+		return htmlToElement(`<div class="card">
         <div class="card-body">
           <h5 class="card-title">${movieQuote.quote}</h5>
           <h6 class="card-subtitle mb-2 text-muted">${movieQuote.movie}</h6>
         </div>
       </div>`);
-    }
+	}
 
-    updateList() {
-        console.log("i need to update");
-        console.log("num quotes = ", rhit.fbMovieQuotesManager.length);
-        console.log("ex quote: ", rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(0));
+	updateList() {
+		console.log("i need to update");
+		console.log("num quotes = ", rhit.fbMovieQuotesManager.length);
+		console.log("ex quote: ", rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(0));
 
-        //make a new quoteListContainer
-        const newList = htmlToElement('<div id="quoteListContainer"></div>');
-        //fill with cards
-        for (let i = 0; i < rhit.fbMovieQuotesManager.length; i++) {
-            const mq = rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(i);
-            const newCard = this._createCard(mq);
+		//make a new quoteListContainer
+		const newList = htmlToElement('<div id="quoteListContainer"></div>');
+		//fill with cards
+		for (let i = 0; i < rhit.fbMovieQuotesManager.length; i++) {
+			const mq = rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(i);
+			const newCard = this._createCard(mq);
 
-            newCard.onclick = (event) => {
-                // console.log(`You clicked on ${mq.id}`);
-                // rhit.storage.setMovieQuoteID(mq.id);
+			newCard.onclick = (event) => {
+				// console.log(`You clicked on ${mq.id}`);
+				// rhit.storage.setMovieQuoteID(mq.id);
 
-                window.location.href = `/moviequote.html?id=${mq.id}`;
-            }
+				window.location.href = `/moviequote.html?id=${mq.id}`;
+			}
 
-            newList.appendChild(newCard);
-        }
-        //remove old container
-        const oldList = document.querySelector("#quoteListContainer");
-        oldList.removeAttribute("id");
-        oldList.hidden = true;
-        //put in new container
-        oldList.parentElement.appendChild(newList);
-    }
+			newList.appendChild(newCard);
+		}
+		//remove old container
+		const oldList = document.querySelector("#quoteListContainer");
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+		//put in new container
+		oldList.parentElement.appendChild(newList);
+	}
 }
+//!-------------------------------Admin Page Controller -----------------
+rhit.AdminPageController = class {
+	constructor() {
+		document.querySelector("#submitPhoto").onclick = (event) => {
+			console.log("you pressed upload photo");
+			document.querySelector("#inputFile").click();
+		};
+		document.querySelector("#inputFile").addEventListener('change', (event) => {
+			const file = event.target.files[0];
+			console.log(`recieved ${file.name}`);
+			const storageREF = firebase.storage().ref().child("LOGO");
+
+			storageREF.put(file).then((uploadTaskSnapshot) => {
+				console.log("the file has been uploaded");
+				storageREF.getDownloadURL().then((downloadURL) => {
+					console.log(downloadURL);
+					rhit.spManager.updateLogoUrl(downloadURL);
+				})
 
 
+
+			});
+			//result.textContent = `You like ${event.target.value}`;
+		});
+
+	}
+}
 // ! ----------------------Intializing pages function-------------------------------------------
 rhit.initializePage = function () {
 	console.log("-----intializing-------");
+	rhit.spManager = new rhit.SPManager();
 	if (document.querySelector("#signInPage")) {
 		//console.log("On the login page");
 		rhit.startFirebaseUI();
-		rhit.spManager = new rhit.SPManager();
+
 		new rhit.SignInPageController();
 	}
 	if (document.querySelector("#storePage")) {
 		//console.log("On the login page");
-		rhit.spManager = new rhit.SPManager();
 		rhit.fbItemsManager = new rhit.FbItemsManager();
 		new rhit.StorePageController();
+	}
+	if (document.querySelector("#adminPage")) {
+		//console.log("On the login page");
+		new rhit.AdminPageController();
 	}
 
 	// if (document.querySelector("#cartPage")) {

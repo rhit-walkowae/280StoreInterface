@@ -15,38 +15,44 @@
     <div>
       <a class="navbar-brand" href="/">BussinessName</a>
     </div>
-    <hr>
-    <div>
-      <ul class="nav nav-pills nav-fill">
-        <li class="nav-item">
-          <a class="nav-link active" href="#">General</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="#">Content</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link active" href="#">View Site</a>
-        </li>
-      </ul>
+    <div style="float: right;">
+      <a type="button" class="btn btn-secondary" href="/">View Site</a>
+    </div>
+  </nav>
+  <div id="adminPage" class="container page-container">
+    <div id="storeGeneral" style="margin-top: 12vh;">
+      <!--Business Name field-->
+      <label for="inputBusinessName" class="bmd-label-static">Bussiness Name:</label>
+      <input type="businessName" class="form-control" id="inputBusinessName" value="BussinessName">
+      <!--Logo field-->
+      <div class="card mx-auto" style="width: 18rem; margin-top: 1rem;">
+        <img src="images/Sign1.jpeg" class="card-img-top" alt="Logo">
+        <a id="submitPhoto" class="btn btn-primary">Update Profile Photo</a>
+        <input id="inputFile" type="file" hidden>
+      </div>
+      <!---->
+
+      <label for="inputBusinessName" class="bmd-label-static">Bussiness Name:</label>
+      <input type="businessName" class="form-control" id="inputBusinessName" value="BussinessName">
     </div>
 
-
-    <div id="mainPage" class="container page-container">
-
-
-    </div>
-    <script src="scripts/jquery.min.js"></script>
-    <script src="scripts/popper.js"></script>
-    <script src="scripts/bootstrap-material-design.js"></script>
-    <script>
-      $("body").bootstrapMaterialDesign();
-    </script>
-    <script src="/__/firebase/7.18.0/firebase-app.js"></script>
-    <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
-    <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
-    <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
-    <script src="/__/firebase/init.js"></script>
-    <script src="scripts/main.js"></script>
+    <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addPost">
+      <i class="material-icons">note_add</i>
+    </button>
+  </div>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/popper.js"></script>
+  <script src="scripts/bootstrap-material-design.js"></script>
+  <script>
+    $("body").bootstrapMaterialDesign();
+  </script>
+  <script src="/__/firebase/7.18.0/firebase-app.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-storage.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  <script src="scripts/main.js"></script>
 </body>
 
 </html>
