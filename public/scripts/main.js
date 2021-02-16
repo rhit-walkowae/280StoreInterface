@@ -30,6 +30,7 @@ rhit.STORE_KEY_TAGLINE = "tagline";
 rhit.spManager = null;
 rhit.fbAuthManager = null;
 rhit.userManager = null;
+rhit.fbItemsManager = null;
 
 function htmlToElement(html) { 
     var template = document.createElement('template');
@@ -68,6 +69,7 @@ rhit.StorePageController = class {
 		});
 		
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
+		rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
 	}
 	updateStoreInfo() {
 		if (rhit.fbAuthManager.isAdmin == true) {
@@ -83,6 +85,38 @@ rhit.StorePageController = class {
 		document.getElementById("businessNameFillerAbout").innerHTML = `ABOUT ${store_info.businessName}`;
 		document.getElementById("generalInfo").innerHTML = store_info.generalInfo;
 
+	}
+
+	_createCard(item){
+		return htmlToElement(`<div class="col-md-4">
+		<div class="card" style="width: 18rem;">
+		  <img class="card-img-top" src=${item.image} alt="item name">
+		  <div class="card-body">
+			<h5 class="card-title">${item.name}</h5>
+			<p class="card-text">${item.price}</p>
+			<a href="#" class="btn btn-primary">Add to cart</a>
+		  </div>
+		</div>
+	  </div>`);
+	}
+
+	updateItems(){
+		console.log("update items called");
+		const newItems = htmlToElement('<div id="productSelection"></div>');
+		console.log("items collection length: ", rhit.fbItemsManager.length);
+		for(let i = 0; i < rhit.fbItemsManager.length; i++){
+			const item = rhit.fbItemManager.getItemAtIndex(i);
+			const newCard = this._createCard(item);
+			newCard.onclick = (event) => {
+				console.log("To do: add to cart");
+			}
+			newItems.appendChild(newCard);
+		}
+		const oldItems = document.querySelector("#productSelection");
+		console.log(newItems);
+		oldItems.removeAttribute("id");
+		oldItems.hidden = true;
+		oldItems.parentElement.appendChild(newItems);
 	}
 
 
@@ -141,6 +175,8 @@ rhit.SPManager = class {
 		////console.log("images loaded");
 		return StoreInfo;
 	}
+
+
 };
 // ! ------------------------------Sign In Page Controller-------------------
 rhit.SignInPageController = class {
@@ -226,6 +262,62 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 }
+
+// !-----------------------------Item ------------------------
+rhit.Item = class {
+	constructor(id, available, image, name, handmade, price, description){
+		this.id = id;
+		this.available = available;
+		this.image = image;
+		this.name = name;
+		this.handmade = handmade;
+		this.price = price;
+		this.description = description;
+	}
+}
+
+// !-----------------------------Firebase Items ------------------------
+rhit.FbItemsManager = class {
+	constructor() {
+		// this.uid = uid;
+		this._documentSnapshots = [];
+		this.ref = firebase.firestore().collection("Items");
+		this._unsubscribe = null;
+	}
+	add(image, name, handmade, price, description){
+		this.ref.add({
+			["price"]: price,
+			["image"]: image,
+			["name"]: name,
+			["handmade"]: handmade,
+			["available"]: true,
+			["numSales"]: 0,
+			["numGifted"]: 0,
+			["description"]: description,
+			["addedDate"]: firebase.firestore.Timestamp.now(),
+		});
+	}
+
+	beginListening(changeListener) {
+		let query = this.ref.orderBy("addedDate", "desc")
+		this._unsubscribe = query.onSnapshot((querySnapshot) => {
+			this._documentSnapshots = querySnapshot.docs;
+			changeListener();
+		});
+	}
+
+	stopListening(){
+		this._unsubscribe();
+	}
+
+	getItemAtIndex(index){
+		const docSnapshot = this._documentSnapshots[index];
+		const item = new rhit.Item(docSnapshot.id, docSnapshot.get("available"), docSnapshot.get("image"), docSnapshot.get("name"), docSnapshot.get("handmade"), docSnapshot.get("price"), docSnapshot.get("description"));
+		return item;
+	}
+
+}
+
 // !-----------------------------Cart Page Controller ------------------------
 rhit.CartPageController = class {
     constructor() {
@@ -315,13 +407,14 @@ rhit.initializePage = function () {
 	if (document.querySelector("#storePage")) {
 		//console.log("On the login page");
 		rhit.spManager = new rhit.SPManager();
+		rhit.fbItemsManager = new rhit.FbItemsManager();
 		new rhit.StorePageController();
 	}
 
-	if (document.querySelector("#cartPage")) {
-		rhit.spManager = new rhit.SPManager();
-		new rhit.StorePageController();
-	}
+	// if (document.querySelector("#cartPage")) {
+	// 	rhit.spManager = new rhit.SPManager();
+	// 	new rhit.StorePageController();
+	// }
 
 
 }
