@@ -26,7 +26,7 @@ rhit.STORE_KEY_SLIDE_SHOW = "generalInfo";
 rhit.STORE_KEY_ANNOUNCEMENT_IMG = "announcementImg";
 rhit.STORE_KEY_ANNOUNCEMENT = "announcement";
 rhit.STORE_KEY_TAGLINE = "tagline";
-rhit.STORE_EMAIL_LIST = "emailList";
+rhit.STORE_KEY_EMAIL_LIST = "emailList";
 rhit.STORE_SOCIAL_MEDIA = "socialMedia";
 //?------------------------------------------------------
 rhit.spManager = null;
@@ -195,6 +195,19 @@ rhit.SPManager = class {
 			console.log(`error writing document:`, error);
 		});
 	}
+	updateAdminEmail(remove, changeListener) {
+		console.log("updating email List");
+		console.log(remove);
+		this._ref.doc("singleton").update({
+			[rhit.STORE_KEY_EMAIL_LIST]: firebase.firestore.FieldValue.arrayRemove(remove)
+		}).catch((error) => {
+			console.log(`error writing document:`, error);
+		});
+
+		changeListener();
+
+
+	}
 	getStoreInfo() {
 
 		const docSnapshot = this._documentSnapshot[0];
@@ -207,7 +220,7 @@ rhit.SPManager = class {
 			docSnapshot.get(rhit.STORE_KEY_ANNOUNCEMENT_IMG),
 			docSnapshot.get(rhit.STORE_KEY_ANNOUNCEMENT),
 			docSnapshot.get(rhit.STORE_KEY_TAGLINE),
-			docSnapshot.get(rhit.STORE_EMAIL_LIST),
+			docSnapshot.get(rhit.STORE_KEY_EMAIL_LIST),
 			docSnapshot.get(rhit.STORE_SOCIAL_MEDIA),
 		);
 		////console.log("images loaded");
@@ -242,12 +255,36 @@ rhit.AdminPageController = class {
 			console.log(event.target.value);
 			rhit.spManager.updateName(event.target.value);
 		})
+
+
+
+
+
+
 		rhit.spManager.beginListening(this.updateView.bind(this));
+	}
+	_createEmail(email) {
+		console.log("creating email", email);
+		return htmlToElement(
+			`<button id="delete${email}" type="button" class="btn btn-danger">${email} - delete</button>`
+		)
 	}
 	updateView() {
 		const store_info = rhit.spManager.getStoreInfo();
 		document.getElementById("businessNameHolder").value = store_info.businessName;
 		document.getElementById("businessLOGOEdit").src = store_info.logo;
+		const newEmailList = htmlToElement(' <div id="emailListContainer"></div>')
+		for (let i = 0; i < store_info.emailList.length; i++) {
+			console.log(store_info.emailList[i]);
+			const newEmail = this._createEmail(store_info.emailList[i]);
+			newEmail.onclick = (event) => {
+				rhit.spManager.updateAdminEmail(store_info.emailList[i], this.updateView);
+			}
+			newEmailList.appendChild(newEmail);
+		}
+		const oldList = document.querySelector(`#emailListContainer`);
+		oldList.hidden = true;
+		oldList.parentElement.appendChild(newEmailList);
 
 	}
 }
