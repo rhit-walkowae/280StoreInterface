@@ -26,11 +26,14 @@ rhit.STORE_KEY_SLIDE_SHOW = "generalInfo";
 rhit.STORE_KEY_ANNOUNCEMENT_IMG = "announcementImg";
 rhit.STORE_KEY_ANNOUNCEMENT = "announcement";
 rhit.STORE_KEY_TAGLINE = "tagline";
+rhit.STORE_EMAIL_LIST = "emailList";
+rhit.STORE_SOCIAL_MEDIA = "socialMedia";
 //?------------------------------------------------------
 rhit.spManager = null;
 rhit.fbAuthManager = null;
 rhit.userManager = null;
 rhit.fbItemsManager = null;
+rhit.storeNavUpdate = null;
 
 function htmlToElement(html) {
 	var template = document.createElement('template');
@@ -38,11 +41,9 @@ function htmlToElement(html) {
 	template.innerHTML = html;
 	return template.content.firstChild;
 }
-
-
 // * ------ Store Info Object contains all information for Store Main Page -------------------------------
 rhit.StoreInfoObject = class {
-	constructor(businessName, generalInfo, logo, slideShow, announcementImg, announcement, tagline) {
+	constructor(businessName, generalInfo, logo, slideShow, announcementImg, announcement, tagline, emailList, socialMedia) {
 		this.businessName = businessName;
 		this.generalInfo = generalInfo;
 		this.logo = logo;
@@ -50,6 +51,29 @@ rhit.StoreInfoObject = class {
 		this.announcementImg = announcementImg;
 		this.announcement = announcement;
 		this.tagline = tagline;
+		this.emailList = emailList;
+		this.socialMedia = socialMedia;
+	}
+}
+rhit.StoreNavUpdate = class {
+	constructor() {
+		console.log("update title");
+		const store_info = rhit.spManager.getStoreInfo();
+		const title = document.querySelector('#businessNameFillerTitle');
+		if (title) {
+			title.innerHTML = store_info.businessName;
+		}
+		const navA = document.querySelector('#businessNameFillerA');
+		if (navA) {
+			navA.innerHTML = `&nbsp;&nbsp;${store_info.businessName}`;
+		}
+		const logo = document.querySelector('#businessLOGO');
+		console.log(logo);
+		if (logo) {
+
+			logo.src = store_info.logo;
+		}
+
 	}
 }
 // !----------------------Store Page Controller ------------------------
@@ -78,10 +102,8 @@ rhit.StorePageController = class {
 		} else {
 			document.getElementById("editBtn").style.display = "none";
 		}
-		const store_info = rhit.spManager.setStoreInfo();
+		const store_info = rhit.spManager.getStoreInfo();
 		console.log('typeof store_info :>> ', store_info.businessName);
-		document.getElementById("businessNameFillerTitle").innerHTML = store_info.businessName;
-		document.getElementById("businessNameFillerA").innerHTML = `   ${store_info.businessName}`;
 		document.getElementById("businessNameFillerAbout").innerHTML = `ABOUT ${store_info.businessName}`;
 		document.getElementById("generalInfo").innerHTML = store_info.generalInfo;
 
@@ -159,15 +181,22 @@ rhit.SPManager = class {
 		return this._documentSnapshot.length;
 	}
 	updateLogoUrl(url) {
-		this._ref.doc("singleton").set({
+		this._ref.doc("singleton").update({
 			[rhit.STORE_KEY_LOGO]: url
 		}).catch((error) => {
 			console.log(`error writing document:`, error);
 		});
-
 	}
-	setStoreInfo() {
-		console.log('typeof docSnapshot :>> ', this._documentSnapshot);
+	updateName(name) {
+		console.log("updating Name");
+		this._ref.doc("singleton").update({
+			[rhit.STORE_KEY_BUSINESS_NAME]: name
+		}).catch((error) => {
+			console.log(`error writing document:`, error);
+		});
+	}
+	getStoreInfo() {
+
 		const docSnapshot = this._documentSnapshot[0];
 
 		const StoreInfo = new rhit.StoreInfoObject(
@@ -178,7 +207,8 @@ rhit.SPManager = class {
 			docSnapshot.get(rhit.STORE_KEY_ANNOUNCEMENT_IMG),
 			docSnapshot.get(rhit.STORE_KEY_ANNOUNCEMENT),
 			docSnapshot.get(rhit.STORE_KEY_TAGLINE),
-
+			docSnapshot.get(rhit.STORE_EMAIL_LIST),
+			docSnapshot.get(rhit.STORE_SOCIAL_MEDIA),
 		);
 		////console.log("images loaded");
 		return StoreInfo;
@@ -186,6 +216,41 @@ rhit.SPManager = class {
 
 
 };
+
+//!-------------------------------Admin Page Controller -----------------
+rhit.AdminPageController = class {
+	constructor() {
+		document.querySelector("#submitPhoto").onclick = (event) => {
+			console.log("you pressed upload photo");
+			document.querySelector("#inputFile").click();
+		};
+		document.querySelector("#inputFile").addEventListener('change', (event) => {
+			const file = event.target.files[0];
+			console.log(`recieved ${file.name}`);
+			const storageREF = firebase.storage().ref().child("LOGO");
+
+			storageREF.put(file).then((uploadTaskSnapshot) => {
+				console.log("the file has been uploaded");
+				storageREF.getDownloadURL().then((downloadURL) => {
+					console.log(downloadURL);
+					rhit.spManager.updateLogoUrl(downloadURL);
+				})
+			});
+			//result.textContent = `You like ${event.target.value}`;
+		});
+		document.querySelector(`#businessNameHolder`).addEventListener('change', (event) => {
+			console.log(event.target.value);
+			rhit.spManager.updateName(event.target.value);
+		})
+		rhit.spManager.beginListening(this.updateView.bind(this));
+	}
+	updateView() {
+		const store_info = rhit.spManager.getStoreInfo();
+		document.getElementById("businessNameHolder").value = store_info.businessName;
+		document.getElementById("businessLOGOEdit").src = store_info.logo;
+
+	}
+}
 // ! ------------------------------Sign In Page Controller-------------------
 rhit.SignInPageController = class {
 	constructor() {
@@ -398,37 +463,16 @@ rhit.CartPageController = class {
 		oldList.parentElement.appendChild(newList);
 	}
 }
-//!-------------------------------Admin Page Controller -----------------
-rhit.AdminPageController = class {
-	constructor() {
-		document.querySelector("#submitPhoto").onclick = (event) => {
-			console.log("you pressed upload photo");
-			document.querySelector("#inputFile").click();
-		};
-		document.querySelector("#inputFile").addEventListener('change', (event) => {
-			const file = event.target.files[0];
-			console.log(`recieved ${file.name}`);
-			const storageREF = firebase.storage().ref().child("LOGO");
-
-			storageREF.put(file).then((uploadTaskSnapshot) => {
-				console.log("the file has been uploaded");
-				storageREF.getDownloadURL().then((downloadURL) => {
-					console.log(downloadURL);
-					rhit.spManager.updateLogoUrl(downloadURL);
-				})
-
-
-
-			});
-			//result.textContent = `You like ${event.target.value}`;
-		});
-
-	}
-}
 // ! ----------------------Intializing pages function-------------------------------------------
 rhit.initializePage = function () {
 	console.log("-----intializing-------");
 	rhit.spManager = new rhit.SPManager();
+	rhit.spManager.beginListening(() => {
+		console.log("updating store info on all pages");
+		rhit.storeNavUpdate = new rhit.StoreNavUpdate();
+
+	});
+
 	if (document.querySelector("#signInPage")) {
 		//console.log("On the login page");
 		rhit.startFirebaseUI();

@@ -7,13 +7,14 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
   <link rel="stylesheet" href="styles/main.css">
-  <title>BussinessName</title>
+  <title id="businessNameFillerTitle">BussinessName</title>
 </head>
 
 <body>
   <nav class="navbar navbar-dark fixed-top">
     <div>
-      <a class="navbar-brand" href="/">BussinessName</a>
+      <img id="businessLOGO" src="" width=30vh height="30 vh">
+      <a id="businessNameFillerA" class="navbar-brand" href="#">&nbsp;&nbsp;</a>
     </div>
     <div style="float: right;">
       <a type="button" class="btn btn-secondary" href="/">View Site</a>
@@ -23,14 +24,18 @@
     <div id="storeGeneral" style="margin-top: 12vh;">
       <!--Business Name field-->
       <label for="inputBusinessName" class="bmd-label-static">Bussiness Name:</label>
-      <input type="businessName" class="form-control" id="inputBusinessName" value="BussinessName">
+      <input id="businessNameHolder" type="businessName" class="form-control" id="inputBusinessName" value="">
       <!--Logo field-->
       <div class="card mx-auto" style="width: 18rem; margin-top: 1rem;">
-        <img src="images/Sign1.jpeg" class="card-img-top" alt="Logo">
+        <img id="businessLOGOEdit" src="" class="card-img-top" alt="Logo">
         <a id="submitPhoto" class="btn btn-primary">Update Profile Photo</a>
         <input id="inputFile" type="file" hidden>
       </div>
-      <!---->
+      <!--EmailList-->
+      <div style="display: block; margin: 1 px auto; text-align: center;">
+        <button class="btn btn-dark">email admin list <i class="material-icons">arrow_drop_down</i></button>
+      </div>
+
 
       <label for="inputBusinessName" class="bmd-label-static">Bussiness Name:</label>
       <input type="businessName" class="form-control" id="inputBusinessName" value="BussinessName">
