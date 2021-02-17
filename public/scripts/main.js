@@ -22,7 +22,7 @@ rhit.USER_ADDRESS = "address";
 rhit.STORE_KEY_BUSINESS_NAME = "businessName";
 rhit.STORE_KEY_GENERAL_INFO = "generalInfo";
 rhit.STORE_KEY_LOGO = "logo";
-rhit.STORE_KEY_SLIDE_SHOW = "generalInfo";
+rhit.STORE_KEY_SLIDE_SHOW = "slideShow";
 rhit.STORE_KEY_ANNOUNCEMENT_IMG = "announcementImg";
 rhit.STORE_KEY_ANNOUNCEMENT = "announcement";
 rhit.STORE_KEY_TAGLINE = "tagline";
@@ -106,7 +106,35 @@ rhit.StorePageController = class {
 		console.log('typeof store_info :>> ', store_info.businessName);
 		document.getElementById("businessNameFillerAbout").innerHTML = `ABOUT ${store_info.businessName}`;
 		document.getElementById("generalInfo").innerHTML = store_info.generalInfo;
+		const newSlideList = htmlToElement('<div id="slideShowContainer" class="carousel-inner">')
+		for (let i = 0; i < store_info.slideShow.length; i++) {
+			console.log(store_info.slideShow[i]);
+			if (i == 0) {
+				console.log("here with active");
+				const newSlide = this._createSlideIMGActive(store_info.slideShow[i]);
+				newSlideList.appendChild(newSlide);
+			} else {
+				const newSlide = this._createSlideIMG(store_info.slideShow[i]);
+				newSlideList.appendChild(newSlide);
 
+			}
+		}
+		const oldList = document.querySelector(`#slideShowContainer`);
+		oldList.removeAttribute("id");
+
+		oldList.parentElement.appendChild(newSlideList);
+		oldList.remove();
+
+	}
+	_createSlideIMG(image) {
+		return htmlToElement(`<div class="carousel-item">
+		<img class="d-block w-100" src="${image}" alt="First slide">
+	  </div>`)
+	}
+	_createSlideIMGActive(image) {
+		return htmlToElement(`<div class="carousel-item active">
+		<img class="d-block w-100" src="${image}" alt="First slide">
+	  </div>`)
 	}
 
 	_createCard(item) {
@@ -187,16 +215,16 @@ rhit.SPManager = class {
 			console.log(`error writing document:`, error);
 		});
 	}
-	updateName(name) {
-		console.log("updating Name");
+	updateString(field, name) {
+		console.log('field :>> ', field);
 		this._ref.doc("singleton").update({
-			[rhit.STORE_KEY_BUSINESS_NAME]: name
+			[field]: name
 		}).catch((error) => {
 			console.log(`error writing document:`, error);
 		});
 	}
 	updateAdminEmail(remove, changeListener) {
-		console.log("updating email List");
+		console.log("removing email List");
 		console.log(remove);
 		this._ref.doc("singleton").update({
 			[rhit.STORE_KEY_EMAIL_LIST]: firebase.firestore.FieldValue.arrayRemove(remove)
@@ -204,8 +232,14 @@ rhit.SPManager = class {
 			console.log(`error writing document:`, error);
 		});
 
-		changeListener();
 
+	}
+	addAdminEmail(email) {
+		this._ref.doc("singleton").update({
+			[rhit.STORE_KEY_EMAIL_LIST]: firebase.firestore.FieldValue.arrayUnion(email)
+		}).catch((error) => {
+			console.log(`error writing document:`, error);
+		});
 
 	}
 	getStoreInfo() {
@@ -233,6 +267,7 @@ rhit.SPManager = class {
 //!-------------------------------Admin Page Controller -----------------
 rhit.AdminPageController = class {
 	constructor() {
+		// !--------- submit photo 4 logo-----------------------------------
 		document.querySelector("#submitPhoto").onclick = (event) => {
 			console.log("you pressed upload photo");
 			document.querySelector("#inputFile").click();
@@ -247,14 +282,58 @@ rhit.AdminPageController = class {
 				storageREF.getDownloadURL().then((downloadURL) => {
 					console.log(downloadURL);
 					rhit.spManager.updateLogoUrl(downloadURL);
+
 				})
 			});
 			//result.textContent = `You like ${event.target.value}`;
 		});
-		document.querySelector(`#businessNameHolder`).addEventListener('change', (event) => {
+		//!------------ submit announcement image -----------------------
+		document.querySelector("#submitAnnouncementPhoto").onclick = (event) => {
+			console.log("you pressed upload announcement photo");
+			document.querySelector("#inputAnnouncementFile").click();
+		};
+		document.querySelector("#inputAnnouncementFile").addEventListener('change', (event) => {
+			const file = event.target.files[0];
+			console.log(`recieved ${file.name}`);
+			const storageREF = firebase.storage().ref().child("AnnouncementIMG");
+
+			storageREF.put(file).then((uploadTaskSnapshot) => {
+				console.log("the file has been uploaded");
+				storageREF.getDownloadURL().then((downloadURL) => {
+					console.log(downloadURL);
+					rhit.spManager.updateString(rhit.STORE_KEY_ANNOUNCEMENT_IMG, downloadURL);
+
+				})
+			});
+			//result.textContent = `You like ${event.target.value}`;
+		});
+		document.querySelector("#submitAddEmail").onclick = (event) => {
+			console.log("you pressed add email");
+			const newAdminEmail = document.querySelector(`#newAdminEmail`).value;
+			rhit.spManager.addAdminEmail(newAdminEmail);
+
+		};
+		$("#addEmailsModal").on("show.bs.modal", (event) => {
+			document.querySelector("#newAdminEmail").value = "";
+
+		});
+
+		document.querySelector(`#inputBusinessName`).addEventListener('change', (event) => {
 			console.log(event.target.value);
-			rhit.spManager.updateName(event.target.value);
-		})
+			rhit.spManager.updateString(rhit.STORE_KEY_BUSINESS_NAME, event.target.value);
+		});
+		document.querySelector(`#inputTagLine`).addEventListener('change', (event) => {
+			console.log(event.target.value);
+			rhit.spManager.updateString(rhit.STORE_KEY_TAGLINE, event.target.value);
+		});
+		document.querySelector(`#inputGeneralInfo`).addEventListener('change', (event) => {
+			console.log(event.target.value);
+			rhit.spManager.updateString(rhit.STORE_KEY_GENERAL_INFO, event.target.value);
+		});
+		document.querySelector(`#inputAnnouncement`).addEventListener('change', (event) => {
+			console.log(event.target.value);
+			rhit.spManager.updateString(rhit.STORE_KEY_ANNOUNCEMENT, event.target.value);
+		});
 
 
 
@@ -266,23 +345,30 @@ rhit.AdminPageController = class {
 	_createEmail(email) {
 		console.log("creating email", email);
 		return htmlToElement(
-			`<button id="delete${email}" type="button" class="btn btn-danger">${email} - delete</button>`
+			`<div><button id="delete${email}" type="button" class="btn btn-dark">${email} - delete</button></div>`
 		)
 	}
 	updateView() {
 		const store_info = rhit.spManager.getStoreInfo();
-		document.getElementById("businessNameHolder").value = store_info.businessName;
+		document.getElementById("inputBusinessName").value = store_info.businessName;
 		document.getElementById("businessLOGOEdit").src = store_info.logo;
+		document.getElementById("inputTagLine").value = store_info.tagline;
+		document.getElementById("inputGeneralInfo").value = store_info.generalInfo;
+		document.getElementById("inputAnnouncement").value = store_info.announcement;
+		document.getElementById("announcementIMG").src = store_info.announcementImg;
+
 		const newEmailList = htmlToElement(' <div id="emailListContainer"></div>')
+		console.log(store_info.emailList.length);
 		for (let i = 0; i < store_info.emailList.length; i++) {
 			console.log(store_info.emailList[i]);
 			const newEmail = this._createEmail(store_info.emailList[i]);
 			newEmail.onclick = (event) => {
-				rhit.spManager.updateAdminEmail(store_info.emailList[i], this.updateView);
+				rhit.spManager.updateAdminEmail(store_info.emailList[i], rhit.AdminPageController.updateView);
 			}
 			newEmailList.appendChild(newEmail);
 		}
 		const oldList = document.querySelector(`#emailListContainer`);
+		oldList.removeAttribute("id");
 		oldList.hidden = true;
 		oldList.parentElement.appendChild(newEmailList);
 
