@@ -388,6 +388,9 @@ rhit.SignInPageController = class {
 
 }
 // !-----------------------------Firebase Auth Manager ------------------------
+//TODO: ADD function that uploads firebase slideshow images into slideshow modal, 
+//TODO: add buttons to pins for deleting, and add an add button that uploads new files to be added to the array
+
 rhit.FbAuthManager = class {
 	constructor() {
 		this._user = null;
