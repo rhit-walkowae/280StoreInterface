@@ -28,6 +28,7 @@ rhit.STORE_KEY_ANNOUNCEMENT = "announcement";
 rhit.STORE_KEY_TAGLINE = "tagline";
 rhit.STORE_KEY_EMAIL_LIST = "emailList";
 rhit.STORE_SOCIAL_MEDIA = "socialMedia";
+rhit.STORE_EVENTS = "Events";
 //?------------------------------------------------------
 rhit.spManager = null;
 rhit.fbAuthManager = null;
@@ -43,7 +44,7 @@ function htmlToElement(html) {
 }
 // * ------ Store Info Object contains all information for Store Main Page -------------------------------
 rhit.StoreInfoObject = class {
-	constructor(businessName, generalInfo, logo, slideShow, announcementImg, announcement, tagline, emailList, socialMedia) {
+	constructor(businessName, generalInfo, logo, slideShow, announcementImg, announcement, tagline, emailList, socialMedia, events) {
 		this.businessName = businessName;
 		this.generalInfo = generalInfo;
 		this.logo = logo;
@@ -53,7 +54,16 @@ rhit.StoreInfoObject = class {
 		this.tagline = tagline;
 		this.emailList = emailList;
 		this.socialMedia = socialMedia;
+		this.events = events;
 	}
+}
+rhit.StoreEventObject = class {
+	constructor(name, location, date) {
+		this.name = name;
+		this.location = location;
+		this.date = date;
+	}
+
 }
 rhit.StoreNavUpdate = class {
 	constructor() {
@@ -93,7 +103,7 @@ rhit.StorePageController = class {
 		});
 
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
-		rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
+		// TODO: rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
 	}
 	updateStoreInfo() {
 		if (rhit.fbAuthManager.isAdmin == true) {
@@ -103,9 +113,13 @@ rhit.StorePageController = class {
 			document.getElementById("editBtn").style.display = "none";
 		}
 		const store_info = rhit.spManager.getStoreInfo();
-		console.log('typeof store_info :>> ', store_info.businessName);
+		console.log('typeof store_info :>> ', store_info.events);
+		document.getElementById("tagLine").innerHTML = store_info.tagline;
 		document.getElementById("businessNameFillerAbout").innerHTML = `ABOUT ${store_info.businessName}`;
 		document.getElementById("generalInfo").innerHTML = store_info.generalInfo;
+
+
+		//?-----------------slideShow----------------------------------------------------------
 		const newSlideList = htmlToElement('<div id="slideShowContainer" class="carousel-inner">')
 		for (let i = 0; i < store_info.slideShow.length; i++) {
 			console.log(store_info.slideShow[i]);
@@ -124,6 +138,18 @@ rhit.StorePageController = class {
 
 		oldList.parentElement.appendChild(newSlideList);
 		oldList.remove();
+		//? -----------------events -------------------------------------
+		const newEventList = htmlToElement(`<div id="eventContainer"></div>`);
+		console.log(rhit.spManager._eventDocSnapshot.docs);
+		for (let i = 0; i < rhit.spManager.eventLength; i++) {
+			const eventC = rhit.spManager.getEventAtIndex(i);
+			const newEvent = this._createEventRow(eventC);
+			newEventList.appendChild(newEvent);
+		}
+		const oldEventList = document.querySelector(`#eventContainer`);
+		oldEventList.removeAttribute("id");
+		oldEventList.hidden = true;
+		oldEventList.parentElement.appendChild(newEventList);
 
 	}
 	_createSlideIMG(image) {
@@ -149,25 +175,39 @@ rhit.StorePageController = class {
 		</div>
 	  </div>`);
 	}
-
-	updateItems() {
-		console.log("update items called");
-		const newItems = htmlToElement('<div id="productSelection"></div>');
-		console.log("items collection length: ", rhit.fbItemsManager.length);
-		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
-			const item = rhit.fbItemManager.getItemAtIndex(i);
-			const newCard = this._createCard(item);
-			newCard.onclick = (event) => {
-				console.log("To do: add to cart");
-			}
-			newItems.appendChild(newCard);
-		}
-		const oldItems = document.querySelector("#productSelection");
-		console.log(newItems);
-		oldItems.removeAttribute("id");
-		oldItems.hidden = true;
-		oldItems.parentElement.appendChild(newItems);
+	_createEventRow(eventItem) {
+		return htmlToElement(`<div class ="row">
+		<div class="col">
+		${eventItem.name}
+	  </div>
+	  <div class="col-6">
+		${eventItem.location}
+	  </div>
+	  <div class="col">
+		${eventItem.date}
+		
+	  </div>
+	  </div>`)
 	}
+
+	// updateItems() {
+	// 	console.log("update items called");
+	// 	const newItems = htmlToElement('<div id="productSelection"></div>');
+	// 	console.log("items collection length: ", rhit.fbItemsManager.length);
+	// 	for (let i = 0; i < rhit.fbItemsManager.length; i++) {
+	// 		const item = rhit.fbItemManager.getItemAtIndex(i);
+	// 		const newCard = this._createCard(item);
+	// 		newCard.onclick = (event) => {
+	// 			console.log("To do: add to cart");
+	// 		}
+	// 		newItems.appendChild(newCard);
+	// 	}
+	// 	const oldItems = document.querySelector("#productSelection");
+	// 	console.log(newItems);
+	// 	oldItems.removeAttribute("id");
+	// 	oldItems.hidden = true;
+	// 	oldItems.parentElement.appendChild(newItems);
+	// }
 
 
 }
@@ -179,6 +219,8 @@ rhit.SPManager = class {
 		this._uid = uid;
 		this._documentSnapshot = {};
 		this._ref = firebase.firestore().collection(rhit.STORE_INFO);
+		this._events = firebase.firestore().collection(rhit.STORE_INFO).doc("singleton").collection("Events");
+		this._eventDocSnapshot = {};
 		this._unsubscribe = null;
 	}
 	stopListening() {
@@ -198,15 +240,27 @@ rhit.SPManager = class {
 			changeListener();
 		});
 		*/
+
 		this._ref.onSnapshot((querySnapshot) => {
 			this._documentSnapshot = querySnapshot.docs;
-			changeListener();
+
+			this._events.onSnapshot((querySnapshote) => {
+				this._eventDocSnapshot = querySnapshote.docs;
+				console.log(this._eventDocSnapshot[0].data());
+				changeListener();
+			});
+
 		});
+
+
 
 	}
 
 	get length() {
 		return this._documentSnapshot.length;
+	}
+	get eventLength() {
+		return this._eventDocSnapshot.length;
 	}
 	updateLogoUrl(url) {
 		this._ref.doc("singleton").update({
@@ -223,20 +277,20 @@ rhit.SPManager = class {
 			console.log(`error writing document:`, error);
 		});
 	}
-	updateAdminEmail(remove, changeListener) {
+	removeArray(field, remove) {
 		console.log("removing email List");
 		console.log(remove);
 		this._ref.doc("singleton").update({
-			[rhit.STORE_KEY_EMAIL_LIST]: firebase.firestore.FieldValue.arrayRemove(remove)
+			[field]: firebase.firestore.FieldValue.arrayRemove(remove)
 		}).catch((error) => {
 			console.log(`error writing document:`, error);
 		});
 
 
 	}
-	addAdminEmail(email) {
+	addArray(field, email) {
 		this._ref.doc("singleton").update({
-			[rhit.STORE_KEY_EMAIL_LIST]: firebase.firestore.FieldValue.arrayUnion(email)
+			[field]: firebase.firestore.FieldValue.arrayUnion(email)
 		}).catch((error) => {
 			console.log(`error writing document:`, error);
 		});
@@ -245,7 +299,7 @@ rhit.SPManager = class {
 	getStoreInfo() {
 
 		const docSnapshot = this._documentSnapshot[0];
-
+		console.log(docSnapshot);
 		const StoreInfo = new rhit.StoreInfoObject(
 			docSnapshot.get(rhit.STORE_KEY_BUSINESS_NAME),
 			docSnapshot.get(rhit.STORE_KEY_GENERAL_INFO),
@@ -260,13 +314,33 @@ rhit.SPManager = class {
 		////console.log("images loaded");
 		return StoreInfo;
 	}
+	singleField(field) {
+		this._ref.doc("singleton").get().then((doc) => {
+			console.log(doc.get(field));
+			return doc.get(field);
+		});
+
+	}
+	getEventAtIndex(index) {
+		const eventDoc = this._eventDocSnapshot[index];
+		const event = new rhit.StoreEventObject(
+			eventDoc.get("Name"),
+			eventDoc.get("Location"),
+			eventDoc.get("Date")
+		)
+		return event;
+	}
 
 
 };
 
 //!-------------------------------Admin Page Controller -----------------
+//TODO: ADD function that uploads firebase slideshow images into slideshow modal, 
+//TODO: add buttons to pins for deleting, and add an add button that uploads new files to be added to the array
 rhit.AdminPageController = class {
 	constructor() {
+		this._slideShowLength = 0;
+
 		// !--------- submit photo 4 logo-----------------------------------
 		document.querySelector("#submitPhoto").onclick = (event) => {
 			console.log("you pressed upload photo");
@@ -317,6 +391,28 @@ rhit.AdminPageController = class {
 			document.querySelector("#newAdminEmail").value = "";
 
 		});
+		//!Adding Slide Show Images------------------------------------------------------
+		document.querySelector("#addSlideImage").onclick = (event) => {
+			console.log("you pressed upload slide photo");
+			document.querySelector("#inputSlideImage").click();
+		};
+		document.querySelector("#inputSlideImage").addEventListener('change', (event) => {
+			const file = event.target.files[0];
+			console.log(`recieved ${file.name}`);
+			console.log(this._slideShowLength);
+			const storageREF = firebase.storage().ref().child(`${file.name}`);
+
+			storageREF.put(file).then((uploadTaskSnapshot) => {
+				console.log("the file has been uploaded");
+				storageREF.getDownloadURL().then((downloadURL) => {
+					console.log(downloadURL);
+					rhit.spManager.addArray(rhit.STORE_KEY_SLIDE_SHOW, downloadURL);
+
+				})
+			});
+			//result.textContent = `You like ${event.target.value}`;
+		});
+		//*-----------------------------------------------------------------------------------------
 
 		document.querySelector(`#inputBusinessName`).addEventListener('change', (event) => {
 			console.log(event.target.value);
@@ -342,12 +438,7 @@ rhit.AdminPageController = class {
 
 		rhit.spManager.beginListening(this.updateView.bind(this));
 	}
-	_createEmail(email) {
-		console.log("creating email", email);
-		return htmlToElement(
-			`<div><button id="delete${email}" type="button" class="btn btn-dark">${email} - delete</button></div>`
-		)
-	}
+
 	updateView() {
 		const store_info = rhit.spManager.getStoreInfo();
 		document.getElementById("inputBusinessName").value = store_info.businessName;
@@ -356,14 +447,34 @@ rhit.AdminPageController = class {
 		document.getElementById("inputGeneralInfo").value = store_info.generalInfo;
 		document.getElementById("inputAnnouncement").value = store_info.announcement;
 		document.getElementById("announcementIMG").src = store_info.announcementImg;
+		//*This uploads SLIDE show images from FB----------------------------------------------------------------------
+		const newSlideList = htmlToElement(' <div id="slideShowIMGContainer"></div>');
+		console.log(store_info.slideShow.length);
+		this._slideShowLength = store_info.slideShow.length + 1;
+		for (let i = 0; i < store_info.slideShow.length; i++) {
 
-		const newEmailList = htmlToElement(' <div id="emailListContainer"></div>')
+			const newSlide = this._createSlidePin(store_info.slideShow[i]);
+			newSlide.onclick = (event) => {
+				rhit.spManager.removeArray(rhit.STORE_KEY_SLIDE_SHOW, store_info.slideShow[i]);
+			}
+			newSlideList.appendChild(newSlide);
+		}
+		const oldSlideList = document.querySelector(`#slideShowIMGContainer`);
+		oldSlideList.removeAttribute("id");
+		oldSlideList.hidden = true;
+		oldSlideList.parentElement.appendChild(newSlideList);
+		//*----------------------------------------------------------------------------
+
+
+
+		//*This uploads emails----------------------------------------------------------------------
+		const newEmailList = htmlToElement(' <div id="emailListContainer"></div>');
 		console.log(store_info.emailList.length);
 		for (let i = 0; i < store_info.emailList.length; i++) {
-			console.log(store_info.emailList[i]);
+
 			const newEmail = this._createEmail(store_info.emailList[i]);
 			newEmail.onclick = (event) => {
-				rhit.spManager.updateAdminEmail(store_info.emailList[i], rhit.AdminPageController.updateView);
+				rhit.spManager.removeArray(rhit.STORE_KEY_EMAIL_LIST, store_info.emailList[i]);
 			}
 			newEmailList.appendChild(newEmail);
 		}
@@ -371,9 +482,36 @@ rhit.AdminPageController = class {
 		oldList.removeAttribute("id");
 		oldList.hidden = true;
 		oldList.parentElement.appendChild(newEmailList);
+		//*----------------------------------------------------------------------------
 
 	}
+	_createEmail(email) {
+
+		return htmlToElement(
+			`<div><button id="delete${email}" type="button" class="btn btn-dark">${email} - delete</button></div>`
+		)
+	}
+	_createSlidePin(img) {
+
+		return htmlToElement(
+			`<div class="pin" style="width: 30%;">
+			<img class="img-fluid" src="${img}" />
+			<p style="text-align:center"> DELETE </p>
+		  </div>`
+		)
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
 // ! ------------------------------Sign In Page Controller-------------------
 rhit.SignInPageController = class {
 	constructor() {
@@ -388,8 +526,7 @@ rhit.SignInPageController = class {
 
 }
 // !-----------------------------Firebase Auth Manager ------------------------
-//TODO: ADD function that uploads firebase slideshow images into slideshow modal, 
-//TODO: add buttons to pins for deleting, and add an add button that uploads new files to be added to the array
+
 
 rhit.FbAuthManager = class {
 	constructor() {
