@@ -67,9 +67,22 @@ body {
 
 
 #productSelection{
-  max-height: 75vh;
+  max-height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
+}
+#itemListContainer{
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+}
+#cartListContainer{
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+
 }
 
 #editEmailModalContent{

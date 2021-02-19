@@ -95,6 +95,7 @@ rhit.StorePageController = class {
 
 			window.location.href = `/signin.html`;
 		});
+
 		document.querySelector("#editBtn").addEventListener("click", (event) => {
 			//console.log("hello going to adminpage");
 			window.location.href = `/adminpage.html`;
@@ -104,11 +105,12 @@ rhit.StorePageController = class {
 		// 	const itemId = parseInt(document.dataset.dataId);
 		// 	console.log(itemId);
 		// });
-		
 
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
 		rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
+		rhit.fbAuthManager.beginListening(this.updateCart.bind(this));
 	}
+
 	updateStoreInfo() {
 		console.log(rhit.spManager);
 		if (rhit.fbAuthManager.isAdmin == true) {
@@ -164,26 +166,64 @@ rhit.StorePageController = class {
 
 
 	updateItems() {
+		$("#cartDialog").on("show.bs.modal", (event) => {
+			const cart = rhit.fbAuthManager.getCart();
+			console.log(cart);
+			console.log(rhit.fbItemsManager.getItemAtId(cart[0]));
+			console.log("update items called");
+			const newcItemsList = htmlToElement(' <div id="cartItemContainer"></div>');
+			for (let i = 0; i < cart.length; i++) {
+
+				const item = rhit.fbItemsManager.getItemAtId(cart[i]);
+				console.log(item);
+				const newCard = this._createItem(item);
+				const deleteCard = htmlToElement(`<a href="#" class="btn btn-primary">Delete</a>`);
+				deleteCard.onclick = (event) => {
+					rhit.fbAuthManager.removeCartArray(item.id)
+					console.log("Delete item");
+					this.updateCart();
+					//document.querySelector("#cartDialogCancel").click();
+					//document.querySelector("#shoppingCartBtn").click();
+				}
+				newcItemsList.appendChild(newCard);
+				newcItemsList.appendChild(deleteCard);
+				newcItemsList.appendChild(htmlToElement(`<hr>`));
+
+			}
+			const oldcItemsList = document.querySelector("#cartItemContainer");
+			console.log(newcItemsList);
+			oldcItemsList.removeAttribute("id");
+			oldcItemsList.hidden = true;
+			oldcItemsList.parentElement.appendChild(newcItemsList);
+			document.querySelector("#shoppingCartBtn").click();
+
+		});
+
 		console.log(rhit.fbItemsManager.getItemAtIndex(0));
 		console.log("update items called");
 		const newItemsList = htmlToElement('<div id="productItems" class="row" style="padding-right: 10px;"></div>');
+
 		console.log("items collection length: ", rhit.fbItemsManager.length);
 		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
 			const item = rhit.fbItemsManager.getItemAtIndex(i);
-			
-			// const cardAddBtn = htmlToElement(`<a id="${item.id}" class="btn btn-primary">Add to cart</a>`);
-			const cardAddBtn = `<a id="${item.id}" class="btn btn-primary">Add to cart</a>`;
-			// console.log("cardAddBtn: ", cardAddBtn);
-			// cardAddBtn.onclick = (event) => {
-			// 	console.log(item.id);
 
-			// }
+			// const cardAddBtn = htmlToElement(`<a id="${item.id}" class="btn btn-primary">Add to cart</a>`);
+			const cardAddBtn = htmlToElement(`<div class="card-footer text-muted">
+			<div>
+			<a id="${item.id}" class="btn btn-primary">Add to cart</a>
+		  </div>
+		  </div>`);
+			// console.log("cardAddBtn: ", cardAddBtn);
 			const newCard = this._createCard(item, cardAddBtn);
-			console.log("cardAddBtn: ", cardAddBtn);
+			//console.log("cardAddBtn: ", cardAddBtn);
 			cardAddBtn.onclick = (event) => {
 				console.log(item.id);
+				rhit.fbAuthManager.addCartArray(item.id);
 			}
-			newItemsList.appendChild(newCard);
+			newCard.appendChild(cardAddBtn);
+			const newCardCol = htmlToElement('<div class="col-md-4" style="margin-bottom: 10px;"></div>');
+			newCardCol.appendChild(newCard);
+			newItemsList.appendChild(newCardCol);
 		}
 		const oldItemsList = document.querySelector("#productItems");
 		console.log(newItemsList);
@@ -191,6 +231,43 @@ rhit.StorePageController = class {
 		oldItemsList.hidden = true;
 		oldItemsList.parentElement.appendChild(newItemsList);
 	}
+	updateCart() {
+		const cart = rhit.fbAuthManager.getCart();
+		console.log(cart);
+		console.log(rhit.fbItemsManager.getItemAtId(cart[0]));
+		console.log("update items called");
+		const newcItemsList = htmlToElement(' <div id="cartItemContainer"></div>');
+		for (let i = 0; i < cart.length; i++) {
+
+			const item = rhit.fbItemsManager.getItemAtId(cart[i]);
+			console.log(item);
+			const newCard = this._createItem(item);
+			const deleteCard = htmlToElement(`<a href="#" class="btn btn-primary">Delete</a>`);
+			deleteCard.onclick = (event) => {
+				rhit.fbAuthManager.removeCartArray(item.id)
+				console.log("Delete item");
+				this.updateCart();
+				//document.querySelector("#cartDialogCancel").click();
+				//document.querySelector("#shoppingCartBtn").click();
+			}
+			newcItemsList.appendChild(newCard);
+			newcItemsList.appendChild(deleteCard);
+			newcItemsList.appendChild(htmlToElement(`<hr>`));
+
+		}
+		const oldcItemsList = document.querySelector("#cartItemContainer");
+		console.log(newcItemsList);
+		oldcItemsList.removeAttribute("id");
+		oldcItemsList.hidden = true;
+		oldcItemsList.parentElement.appendChild(newcItemsList);
+
+
+
+
+
+	}
+
+
 
 	_createSlideIMG(image) {
 		return htmlToElement(`<div class="carousel-item">
@@ -204,27 +281,22 @@ rhit.StorePageController = class {
 	}
 
 
-	_createCard(item,addBtn) {
-		console.log("button html: ", addBtn);
-		return htmlToElement(`<div class="col-md-4" style="margin-bottom: 15px;">
+	_createCard(item, addBtn) {
+		//console.log("button html: ", addBtn);
+		return htmlToElement(`
 		<div class="card h-100">
 		 
 		  <div class="card-body">
 			<h5 class="card-title">${item.name}</h5>
-			<img class="card-img-top" src="${item.image}" alt="item image not currently available">
+			<img class="card-img-top" src="${item.image}" alt="item image not currently available" style="max-height: 40vh;">
 			<p class="card-text">${item.description}</p>
 	 	  <p class="card-text">${item.price}</p>
 		   <p><small class="text-muted"> Available = ${item.available}</small></p>
 			
 		  </div>
-		  <div class="card-footer text-muted">
-			  <div>
-			  <a id="BgDRit6lHnw2uFe16ONv" class="btn btn-primary">Add to cart</a>
-				  ${addBtn} <p>${item.name}</p>
-			</div>
-  		  </div>
+		  
 		</div>
-	  </div>`);
+	  `);
 
 	}
 	_createEventRow(eventItem) {
@@ -240,6 +312,20 @@ rhit.StorePageController = class {
 		
 	  </div>
 	  </div>`)
+	}
+	_createItem(item) {
+		//console.log("HEREEEEEEEEEEEEEEEE");
+		return htmlToElement(`<div class="row">
+              <div class="col">
+                <img src="${item.image}" alt="product has no image" style="max-width: 10vw;">
+              </div>
+              <div class="col-5">
+                <h5>${item.name}</h5>
+              </div>
+              <div class="col">
+                <h5>${item.price}</h5>
+              </div>
+            </div>`);
 	}
 
 
@@ -716,14 +802,16 @@ rhit.FbAuthManager = class {
 		this._ref = firebase.firestore().collection(rhit.USERS);
 		this._unsubscribe = null;
 		this._Admin = false;
+		this._cart = new Array();
 	}
 	beginListening(changeListener) {
+		console.log("listening ");
 		firebase.auth().onAuthStateChanged((user) => {
 			this._user = user;
 
 			if (user) {
 				this._email = user.email;
-				//console.log('user :>> ', this._email);
+				console.log('user :>> ', this._email);
 				if (this._email) {
 					let documentRef = this._ref.doc(this._email);
 
@@ -731,6 +819,8 @@ rhit.FbAuthManager = class {
 						if (doc.exists) {
 							//console.log("document Exsists!");
 							this._Admin = doc.data().isAdmin;
+							console.log(doc.data());
+							this._cart = doc.data().cart;
 							////console.log('imageOwner :>> ', this.imageOwner);
 						} else {
 							//console.log("user is not yet created");
@@ -761,7 +851,7 @@ rhit.FbAuthManager = class {
 		this._ref.doc(email).set({
 			[rhit.USERS_IS_ADMIN]: false,
 			[rhit.USER_ADDRESS]: null,
-			[rhit.USERS_CART]: new Array(),
+			[rhit.USERS_CART]: this._cart,
 		}).catch((error) => {
 			//console.log(`error writing document:`, error);
 		});
@@ -777,6 +867,39 @@ rhit.FbAuthManager = class {
 	}
 	get isSignedIn() {
 		return !!this._user;
+	}
+	removeCartArray(remove) {
+		var ind = this._cart.indexOf(remove);
+		this._cart.splice(ind, 1);
+		//console.log("removing email List");
+		//console.log(remove);
+		this._ref.doc(this._email).update({
+			["cart"]: firebase.firestore.FieldValue.arrayRemove(remove)
+		}).catch((error) => {
+			//console.log(`error writing document:`, error);
+		});
+
+
+	}
+	addCartArray(item) {
+		if (this._cart.indexOf(item) == -1) {
+			this._cart.push(item);
+		}
+
+		console.log(item, "Being added to", this._user);
+		this._ref.doc(this._email).update({
+			["cart"]: firebase.firestore.FieldValue.arrayUnion(item)
+		}).catch((error) => {
+			//console.log(`error writing document:`, error);
+		});
+
+	}
+	getCart() {
+		console.log(this._cart);
+		return this._cart;
+
+
+
 	}
 }
 // !-----------------------------Item ------------------------
@@ -855,7 +978,7 @@ rhit.FbItemsManager = class {
 		let query = this.ref.orderBy("addedDate", "desc")
 		this._unsubscribe = query.onSnapshot((querySnapshot) => {
 			this._documentSnapshots = querySnapshot.docs;
-			//console.log(this._documentSnapshots);
+			console.log(this._documentSnapshots);
 			changeListener();
 		});
 	}
@@ -880,6 +1003,16 @@ rhit.FbItemsManager = class {
 		const docSnapshot = this._documentSnapshots[index];
 		const item = new rhit.Item(docSnapshot.id, docSnapshot.get("available"), docSnapshot.get("image"), docSnapshot.get("name"), docSnapshot.get("handmade"), docSnapshot.get("price"), docSnapshot.get("description"));
 		return item;
+	}
+	getItemAtId(identification) {
+		console.log(this._documentSnapshots);
+		for (let i = 0; i < this._documentSnapshots.length; i++) {
+			var doc = this._documentSnapshots[i];
+			if (doc.id == identification) {
+				return new rhit.Item(doc.id, doc.get("available"), doc.get("image"), doc.get("name"), doc.get("handmade"), doc.get("price"), doc.get("description"));
+
+			}
+		}
 	}
 
 }
