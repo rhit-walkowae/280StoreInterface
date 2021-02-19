@@ -58,7 +58,8 @@ rhit.StoreInfoObject = class {
 	}
 }
 rhit.StoreEventObject = class {
-	constructor(name, location, date) {
+	constructor(id, name, location, date) {
+		this.id = id;
 		this.name = name;
 		this.location = location;
 		this.date = date;
@@ -227,6 +228,7 @@ rhit.SPManager = class {
 		this._unsubscribe();
 	}
 
+
 	beginListening(changeListener) {
 		/*
 	
@@ -323,12 +325,40 @@ rhit.SPManager = class {
 	}
 	getEventAtIndex(index) {
 		const eventDoc = this._eventDocSnapshot[index];
+		console.log(eventDoc.id);
 		const event = new rhit.StoreEventObject(
+			eventDoc.id,
 			eventDoc.get("Name"),
 			eventDoc.get("Location"),
 			eventDoc.get("Date")
 		)
 		return event;
+	}
+	_deleteEvent(index) {
+		this._events.doc(index).delete()
+			.then(function () {
+				console.log("doc deleted");
+				//window.location.href = "/list.html";
+			})
+			.catch(function (error) {});
+
+	}
+	addEvent(name, location, date) {
+		////console.log("adding picture");
+		this._events
+
+			.add({
+
+				["Name"]: name,
+				["Location"]: location,
+				["Date"]: date,
+			})
+			.then(function (docref) {
+				//console.log(`document written with ID`);
+			})
+			.catch(function (error) {
+				//console.error("Error adding document:", error);
+			});
 	}
 
 
@@ -430,6 +460,19 @@ rhit.AdminPageController = class {
 			console.log(event.target.value);
 			rhit.spManager.updateString(rhit.STORE_KEY_ANNOUNCEMENT, event.target.value);
 		});
+		document.querySelector(`#submitAddEvent`).onclick = (event) => {
+			const eName = document.querySelector(`#newEventName`).value;
+			const eLocation = document.querySelector(`#newEventLocation`).value;
+			const eDate = document.querySelector(`#newEventDate`).value;
+			if (eName.length > 0) {
+				rhit.spManager.addEvent(eName, eLocation, eDate);
+			}
+		};
+		$("#addEventListContainer").on("show.bs.modal", (event) => {
+			document.querySelector(`#newEventName`).value = "";
+			document.querySelector(`#newEventLocation`).value = "";
+			document.querySelector(`#newEventDate`).value = "";
+		});
 
 
 
@@ -466,6 +509,28 @@ rhit.AdminPageController = class {
 		//*----------------------------------------------------------------------------
 
 
+		//* this uploads events from firebase---------------------------
+		const newEventList = htmlToElement(`<div id="eventContainer"></div>`);
+		console.log(rhit.spManager._eventDocSnapshot);
+		for (let i = 0; i < rhit.spManager.eventLength; i++) {
+			const eventC = rhit.spManager.getEventAtIndex(i);
+			const newEvent = this._createEventRow(eventC);
+			const newEventBtn = htmlToElement(`<button type="button" class="btn btn-danger">Delete</button>`);
+			newEventBtn.onclick = (event) => {
+				rhit.spManager._deleteEvent(eventC.id);
+				console.log("Deleting event");
+			}
+			newEventList.appendChild(newEvent);
+			newEventList.appendChild(newEventBtn);
+			newEventList.appendChild(htmlToElement('<hr>'))
+		}
+		const oldEventList = document.querySelector(`#eventContainer`);
+		oldEventList.removeAttribute("id");
+		oldEventList.hidden = true;
+		oldEventList.parentElement.appendChild(newEventList);
+		//*----------------------------------
+
+
 
 		//*This uploads emails----------------------------------------------------------------------
 		const newEmailList = htmlToElement(' <div id="emailListContainer"></div>');
@@ -477,6 +542,7 @@ rhit.AdminPageController = class {
 				rhit.spManager.removeArray(rhit.STORE_KEY_EMAIL_LIST, store_info.emailList[i]);
 			}
 			newEmailList.appendChild(newEmail);
+
 		}
 		const oldList = document.querySelector(`#emailListContainer`);
 		oldList.removeAttribute("id");
@@ -499,6 +565,21 @@ rhit.AdminPageController = class {
 			<p style="text-align:center"> DELETE </p>
 		  </div>`
 		)
+	}
+	_createEventRow(eventItem) {
+		return htmlToElement(`
+		<div class ="row" style="margin-top: 10px;">
+		<div class="col">
+		${eventItem.name}
+	  	</div>
+	 	 <div class="col-5">
+		${eventItem.location}
+	 	 </div>
+	  	<div class="col">
+		${eventItem.date}
+		 </div>
+	 	 </div>
+		 `)
 	}
 }
 

@@ -67,14 +67,10 @@
       <hr id="adminPageHR">
       <!--Events List-->
       <div style="display: block; margin: 1 px auto; text-align: center;">
-        <button class="btn btn-dark" data-toggle="modal" data-target="#editEmails">Events<i
+        <button class="btn btn-dark" data-toggle="modal" data-target="#editEvents">Events<i
             class="material-icons">arrow_drop_down</i></button>
       </div>
-      <!--Socail Media List-->
-      <div style="display: block; margin: 1 px auto; text-align: center;">
-        <button class="btn btn-dark" data-toggle="modal" data-target="#editEmails">Social Media<i
-            class="material-icons">arrow_drop_down</i></button>
-      </div>
+
     </div>
 
 
@@ -113,9 +109,65 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-          <button id = "addSlideImage" type="button" class="btn btn-primary">Add
+          <button id="addSlideImage" type="button" class="btn btn-primary">Add
             Slide Image</button>
           <input id="inputSlideImage" type="file" hidden>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal Event List -->
+  <div class="modal fade" id="editEvents" tabindex="-1" role="dialog" aria-labelledby="Edit Events" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div id="editEventModalContent" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Events </h5>
+        </div>
+        <div class="modal-body">
+          <div id="eventsListContainer">
+            <div class="row">
+              <div class="col">
+                <h5>Name</h5>
+              </div>
+              <div class="col-5">
+                <h5>Location</h5>
+              </div>
+              <div class="col">
+                <h5>Date</h5>
+              </div>
+            </div>
+            <hr>
+            <div id="eventContainer">
+
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addEventModal">Add
+            Event</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Add Event to Event list-->
+  <div class="modal fade bd-example-modal-sm" id="addEventModal" tabindex="-1" role="dialog" aria-labelledby="add Event"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+      <div class="modal-content " style="width: 50vh; display: block; margin: auto;">
+        <div class="modal-header">
+          <h5 class="modal-title">Add new Event</h5>
+        </div>
+        <div class="modal-body">
+          <div id="addEventListContainer">
+            <input type="text" class="form-control" id="newEventName" placeholder="Name">
+            <input type="text" class="form-control" id="newEventLocation" placeholder="Location">
+            <input type="text" class="form-control" id="newEventDate" placeholder="Date">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" id="submitAddEvent" class="btn btn-primary" data-dismiss="modal">SUBMIT</button>
         </div>
       </div>
     </div>
