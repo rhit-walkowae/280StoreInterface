@@ -9,11 +9,7 @@ body {
 .navbar-brand {
   color: white;
 }
-#bussinessLOGO{
-  width: 20;
-  height: 20;
 
-}
 .navbar-toggler {
   color: white;
 }
@@ -25,12 +21,19 @@ body {
   color: white;
   background-color: transparent;
 }
+#businessNameFillerA{
+  vertical-align: middle;
+  font-size: 5vw;
+}
+
 
 .page-container {
   margin-top: 20px;
 }
 .d-block {
   border-style: solid;
+  border-width: thick;
+  border-color: #929A85;
 }
 .carousel {
   display: block;
@@ -59,24 +62,16 @@ body {
 #fab:active {
   transform: translateY(2px);
   opacity: 0.8;
+ 
 }
 
-.card{
-  display: block;
-  margin: auto;
-  margin-bottom: 2em ;
-  
-}
+
 #productSelection{
-  max-height: 20rem;
+  max-height: 75vh;
   overflow-y: auto;
   overflow-x: hidden;
 }
-@media (min-width: 992px){
-.card {
-   
-}
-}
+
 #editEmailModalContent{
   background-color: #929A85;
 }
@@ -99,4 +94,20 @@ body {
 #slideShowIMGContainer {
   display: block;
   margin: auto;
+}
+#businessLOGO{
+  max-width: 20vw;
+  max-height: 10vh;
+   vertical-align: middle;
+}
+#announcementImg{
+  max-width: 40vw;
+  display: block;
+  margin: auto;
+  
+}
+#announcementText{
+  display: block; 
+  margin: auto;
+
 }

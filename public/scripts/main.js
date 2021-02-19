@@ -68,7 +68,7 @@ rhit.StoreEventObject = class {
 }
 rhit.StoreNavUpdate = class {
 	constructor() {
-		console.log("update title");
+		//console.log("update title");
 		const store_info = rhit.spManager.getStoreInfo();
 		const title = document.querySelector('#businessNameFillerTitle');
 		if (title) {
@@ -79,7 +79,7 @@ rhit.StoreNavUpdate = class {
 			navA.innerHTML = `&nbsp;&nbsp;${store_info.businessName}`;
 		}
 		const logo = document.querySelector('#businessLOGO');
-		console.log(logo);
+		//console.log(logo);
 		if (logo) {
 
 			logo.src = store_info.logo;
@@ -90,42 +90,48 @@ rhit.StoreNavUpdate = class {
 // !----------------------Store Page Controller ------------------------
 rhit.StorePageController = class {
 	constructor() {
+
 		document.querySelector("#signInBtn").addEventListener("click", (event) => {
 
 			window.location.href = `/signin.html`;
 		});
 		document.querySelector("#editBtn").addEventListener("click", (event) => {
-			console.log("hello going to adminpage");
+			//console.log("hello going to adminpage");
 			window.location.href = `/adminpage.html`;
 		});
 		document.querySelector("#shoppingCartBtn").addEventListener("click", (event) => {
-			console.log("hello going to adminpage");
+			//console.log("hello going to adminpage");
 			window.location.href = `/cart.html`;
 		});
 
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
-		// TODO: rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
+		rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
 	}
 	updateStoreInfo() {
+		console.log(rhit.spManager);
 		if (rhit.fbAuthManager.isAdmin == true) {
-			console.log("set edit button to visible");
+			//console.log("set edit button to visible");
 			document.getElementById("editBtn").style.display = "block";
 		} else {
 			document.getElementById("editBtn").style.display = "none";
 		}
 		const store_info = rhit.spManager.getStoreInfo();
-		console.log('typeof store_info :>> ', store_info.events);
+		//console.log('typeof store_info :>> ', store_info.events);
 		document.getElementById("tagLine").innerHTML = store_info.tagline;
 		document.getElementById("businessNameFillerAbout").innerHTML = `ABOUT ${store_info.businessName}`;
 		document.getElementById("generalInfo").innerHTML = store_info.generalInfo;
+		document.getElementById("announcementImg").src = store_info.announcementImg;
+		document.getElementById("announcementText").innerHTML = store_info.announcement
+
+
 
 
 		//?-----------------slideShow----------------------------------------------------------
-		const newSlideList = htmlToElement('<div id="slideShowContainer" class="carousel-inner">')
+		const newSlideList = htmlToElement('<div id="slideShowContainer" class="carousel-inner"><div>')
 		for (let i = 0; i < store_info.slideShow.length; i++) {
-			console.log(store_info.slideShow[i]);
+			////console.log(store_info.slideShow[i]);
 			if (i == 0) {
-				console.log("here with active");
+				////console.log("here with active");
 				const newSlide = this._createSlideIMGActive(store_info.slideShow[i]);
 				newSlideList.appendChild(newSlide);
 			} else {
@@ -141,7 +147,7 @@ rhit.StorePageController = class {
 		oldList.remove();
 		//? -----------------events -------------------------------------
 		const newEventList = htmlToElement(`<div id="eventContainer"></div>`);
-		console.log(rhit.spManager._eventDocSnapshot.docs);
+		//console.log(rhit.spManager._eventDocSnapshot.docs);
 		for (let i = 0; i < rhit.spManager.eventLength; i++) {
 			const eventC = rhit.spManager.getEventAtIndex(i);
 			const newEvent = this._createEventRow(eventC);
@@ -153,28 +159,67 @@ rhit.StorePageController = class {
 		oldEventList.parentElement.appendChild(newEventList);
 
 	}
+
+
+	updateItems() {
+		console.log(rhit.fbItemsManager.getItemAtIndex(0));
+		console.log("update items called");
+		const newItemsList = htmlToElement('<div id="productItems" class="row" style="padding-right: 10px;"></div>');
+		console.log("items collection length: ", rhit.fbItemsManager.length);
+		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
+			const item = rhit.fbItemsManager.getItemAtIndex(i);
+			const newCard = this._createCard(item);
+			newCard.onclick = (event) => {
+				console.log("To do: add to cart");
+			}
+			newItemsList.appendChild(newCard);
+		}
+		const oldItemsList = document.querySelector("#productItems");
+		console.log(newItemsList);
+		oldItemsList.removeAttribute("id");
+		oldItemsList.hidden = true;
+		oldItemsList.parentElement.appendChild(newItemsList);
+	}
+
 	_createSlideIMG(image) {
 		return htmlToElement(`<div class="carousel-item">
-		<img class="d-block w-100" src="${image}" alt="First slide">
+		<img class="d-block w-100"  style="max-height: 40vh; object-fit:cover;" src="${image}" alt="First slide">
 	  </div>`)
 	}
 	_createSlideIMGActive(image) {
 		return htmlToElement(`<div class="carousel-item active">
-		<img class="d-block w-100" src="${image}" alt="First slide">
+		<img class="d-block w-100" style="max-height: 40vh; object-fit:cover;" src="${image}" alt="First slide">
 	  </div>`)
 	}
 
+
 	_createCard(item) {
-		return htmlToElement(`<div class="col-md-4">
-		<div class="card" style="width: 18rem;">
-		  <img class="card-img-top" src=${item.image} alt="item name">
+		console.log("HEREEEEEEEEEEEEEEEE");
+		return htmlToElement(`<div class="col-md-4" style="margin-bottom: 15px;">
+		<div class="card h-100">
+		 
 		  <div class="card-body">
 			<h5 class="card-title">${item.name}</h5>
-			<p class="card-text">${item.price}</p>
-			<a href="#" class="btn btn-primary">Add to cart</a>
+			<img class="card-img-top" src="${item.image}" alt="item image not currently available">
+			<p class="card-text">${item.description}</p>
+	 	  <p class="card-text">${item.price}</p>
+		   <p><small class="text-muted"> Available = ${item.available}</small></p>
+			
 		  </div>
+		  <div class="card-footer text-muted">
+		  <a href="#" class="btn btn-primary">Add to cart</a>
+  </div>
 		</div>
-	  </div>`);
+	  </div>`)
+		// 	return htmlToElement(`<div class="card">
+		// 	<img src="${item.image}" class="card-img-top" alt="image not available at this time">
+		// 	<div class="card-body">
+		// 	  <h5 class="card-title">${item.name}</h5>
+		// 	  <p class="card-text">${item.description}</p>
+		// 	  <p class="card-text">${item.price}<small class="text-muted"> Available = ${item.available}</small></p>
+		// 	</div>
+		//   </div>`);
+
 	}
 	_createEventRow(eventItem) {
 		return htmlToElement(`<div class ="row">
@@ -191,31 +236,12 @@ rhit.StorePageController = class {
 	  </div>`)
 	}
 
-	// updateItems() {
-	// 	console.log("update items called");
-	// 	const newItems = htmlToElement('<div id="productSelection"></div>');
-	// 	console.log("items collection length: ", rhit.fbItemsManager.length);
-	// 	for (let i = 0; i < rhit.fbItemsManager.length; i++) {
-	// 		const item = rhit.fbItemManager.getItemAtIndex(i);
-	// 		const newCard = this._createCard(item);
-	// 		newCard.onclick = (event) => {
-	// 			console.log("To do: add to cart");
-	// 		}
-	// 		newItems.appendChild(newCard);
-	// 	}
-	// 	const oldItems = document.querySelector("#productSelection");
-	// 	console.log(newItems);
-	// 	oldItems.removeAttribute("id");
-	// 	oldItems.hidden = true;
-	// 	oldItems.parentElement.appendChild(newItems);
-	// }
-
 
 }
 // !--------------------Store Page Manager -------------------------------------
 rhit.SPManager = class {
 	constructor(uid) {
-		////console.log("list manager created");
+		//////console.log("list manager created");
 		// this._uid = rhit.fbAuthManager._user;
 		this._uid = uid;
 		this._documentSnapshot = {};
@@ -233,7 +259,7 @@ rhit.SPManager = class {
 		/*
 	
 		var query = this._ref;
-		////console.log('typeof :>> ', typeof this._ref);
+		//////console.log('typeof :>> ', typeof this._ref);
 		if (this._uid) {
 			var query = this._ref.where(rhit.IMG_KEY_AUTHOR, "==", this._uid);
 		}
@@ -248,7 +274,7 @@ rhit.SPManager = class {
 
 			this._events.onSnapshot((querySnapshote) => {
 				this._eventDocSnapshot = querySnapshote.docs;
-				console.log(this._eventDocSnapshot[0].data());
+				//console.log(this._eventDocSnapshot[0].data());
 				changeListener();
 			});
 
@@ -268,24 +294,24 @@ rhit.SPManager = class {
 		this._ref.doc("singleton").update({
 			[rhit.STORE_KEY_LOGO]: url
 		}).catch((error) => {
-			console.log(`error writing document:`, error);
+			//console.log(`error writing document:`, error);
 		});
 	}
 	updateString(field, name) {
-		console.log('field :>> ', field);
+		//console.log('field :>> ', field);
 		this._ref.doc("singleton").update({
 			[field]: name
 		}).catch((error) => {
-			console.log(`error writing document:`, error);
+			//console.log(`error writing document:`, error);
 		});
 	}
 	removeArray(field, remove) {
-		console.log("removing email List");
-		console.log(remove);
+		//console.log("removing email List");
+		//console.log(remove);
 		this._ref.doc("singleton").update({
 			[field]: firebase.firestore.FieldValue.arrayRemove(remove)
 		}).catch((error) => {
-			console.log(`error writing document:`, error);
+			//console.log(`error writing document:`, error);
 		});
 
 
@@ -294,14 +320,14 @@ rhit.SPManager = class {
 		this._ref.doc("singleton").update({
 			[field]: firebase.firestore.FieldValue.arrayUnion(email)
 		}).catch((error) => {
-			console.log(`error writing document:`, error);
+			//console.log(`error writing document:`, error);
 		});
 
 	}
 	getStoreInfo() {
 
 		const docSnapshot = this._documentSnapshot[0];
-		console.log(docSnapshot);
+		//console.log(docSnapshot);
 		const StoreInfo = new rhit.StoreInfoObject(
 			docSnapshot.get(rhit.STORE_KEY_BUSINESS_NAME),
 			docSnapshot.get(rhit.STORE_KEY_GENERAL_INFO),
@@ -313,19 +339,19 @@ rhit.SPManager = class {
 			docSnapshot.get(rhit.STORE_KEY_EMAIL_LIST),
 			docSnapshot.get(rhit.STORE_SOCIAL_MEDIA),
 		);
-		////console.log("images loaded");
+		//////console.log("images loaded");
 		return StoreInfo;
 	}
 	singleField(field) {
 		this._ref.doc("singleton").get().then((doc) => {
-			console.log(doc.get(field));
+			//console.log(doc.get(field));
 			return doc.get(field);
 		});
 
 	}
 	getEventAtIndex(index) {
 		const eventDoc = this._eventDocSnapshot[index];
-		console.log(eventDoc.id);
+		//console.log(eventDoc.id);
 		const event = new rhit.StoreEventObject(
 			eventDoc.id,
 			eventDoc.get("Name"),
@@ -337,14 +363,14 @@ rhit.SPManager = class {
 	_deleteEvent(index) {
 		this._events.doc(index).delete()
 			.then(function () {
-				console.log("doc deleted");
+				//console.log("doc deleted");
 				//window.location.href = "/list.html";
 			})
 			.catch(function (error) {});
 
 	}
 	addEvent(name, location, date) {
-		////console.log("adding picture");
+		//////console.log("adding picture");
 		this._events
 
 			.add({
@@ -354,10 +380,10 @@ rhit.SPManager = class {
 				["Date"]: date,
 			})
 			.then(function (docref) {
-				//console.log(`document written with ID`);
+				////console.log(`document written with ID`);
 			})
 			.catch(function (error) {
-				//console.error("Error adding document:", error);
+				////console.error("Error adding document:", error);
 			});
 	}
 
@@ -370,21 +396,20 @@ rhit.SPManager = class {
 rhit.AdminPageController = class {
 	constructor() {
 		this._slideShowLength = 0;
-
 		// !--------- submit photo 4 logo-----------------------------------
 		document.querySelector("#submitPhoto").onclick = (event) => {
-			console.log("you pressed upload photo");
+			//console.log("you pressed upload photo");
 			document.querySelector("#inputFile").click();
 		};
 		document.querySelector("#inputFile").addEventListener('change', (event) => {
 			const file = event.target.files[0];
-			console.log(`recieved ${file.name}`);
+			//console.log(`recieved ${file.name}`);
 			const storageREF = firebase.storage().ref().child("LOGO");
 
 			storageREF.put(file).then((uploadTaskSnapshot) => {
-				console.log("the file has been uploaded");
+				//console.log("the file has been uploaded");
 				storageREF.getDownloadURL().then((downloadURL) => {
-					console.log(downloadURL);
+					//console.log(downloadURL);
 					rhit.spManager.updateLogoUrl(downloadURL);
 
 				})
@@ -393,18 +418,18 @@ rhit.AdminPageController = class {
 		});
 		//!------------ submit announcement image -----------------------
 		document.querySelector("#submitAnnouncementPhoto").onclick = (event) => {
-			console.log("you pressed upload announcement photo");
+			//console.log("you pressed upload announcement photo");
 			document.querySelector("#inputAnnouncementFile").click();
 		};
 		document.querySelector("#inputAnnouncementFile").addEventListener('change', (event) => {
 			const file = event.target.files[0];
-			console.log(`recieved ${file.name}`);
+			//console.log(`recieved ${file.name}`);
 			const storageREF = firebase.storage().ref().child("AnnouncementIMG");
 
 			storageREF.put(file).then((uploadTaskSnapshot) => {
-				console.log("the file has been uploaded");
+				//console.log("the file has been uploaded");
 				storageREF.getDownloadURL().then((downloadURL) => {
-					console.log(downloadURL);
+					//console.log(downloadURL);
 					rhit.spManager.updateString(rhit.STORE_KEY_ANNOUNCEMENT_IMG, downloadURL);
 
 				})
@@ -412,7 +437,7 @@ rhit.AdminPageController = class {
 			//result.textContent = `You like ${event.target.value}`;
 		});
 		document.querySelector("#submitAddEmail").onclick = (event) => {
-			console.log("you pressed add email");
+			//console.log("you pressed add email");
 			const newAdminEmail = document.querySelector(`#newAdminEmail`).value;
 			rhit.spManager.addAdminEmail(newAdminEmail);
 
@@ -423,20 +448,46 @@ rhit.AdminPageController = class {
 		});
 		//!Adding Slide Show Images------------------------------------------------------
 		document.querySelector("#addSlideImage").onclick = (event) => {
-			console.log("you pressed upload slide photo");
+			//console.log("you pressed upload slide photo");
 			document.querySelector("#inputSlideImage").click();
 		};
 		document.querySelector("#inputSlideImage").addEventListener('change', (event) => {
 			const file = event.target.files[0];
-			console.log(`recieved ${file.name}`);
-			console.log(this._slideShowLength);
+			//console.log(`recieved ${file.name}`);
+			//console.log(this._slideShowLength);
 			const storageREF = firebase.storage().ref().child(`${file.name}`);
 
 			storageREF.put(file).then((uploadTaskSnapshot) => {
-				console.log("the file has been uploaded");
+				//console.log("the file has been uploaded");
 				storageREF.getDownloadURL().then((downloadURL) => {
-					console.log(downloadURL);
+					//console.log(downloadURL);
 					rhit.spManager.addArray(rhit.STORE_KEY_SLIDE_SHOW, downloadURL);
+
+				})
+			});
+			//result.textContent = `You like ${event.target.value}`;
+		});
+		//*-----------------------------------------------------------------------------------------
+		//!Adding Item Images------------------------------------------------------
+		document.querySelector("#addItemImage").onclick = (event) => {
+			//console.log("you pressed upload slide photo");
+			document.querySelector("#inputItemImage").click();
+		};
+		document.querySelector("#inputItemImage").addEventListener('change', (event) => {
+			const file = event.target.files[0];
+			//console.log(`recieved ${file.name}`);
+			//console.log(this._slideShowLength);
+			const storageREF = firebase.storage().ref().child(`Temporary`);
+			storageREF.put(file).then((uploadTaskSnapshot) => {
+				//console.log("the file has been uploaded");
+				console.log(rhit.fbItemsManager);
+				rhit.fbItemsManager._setTempImage(file);
+				storageREF.getDownloadURL().then((downloadURL) => {
+					//console.log(downloadURL);
+					const tempImg = document.querySelector(`#tempItemImage`);
+					tempImg.src = downloadURL;
+					tempImg.hidden = false;
+					//rhit.spManager.addArray(rhit.STORE_KEY_SLIDE_SHOW, downloadURL);
 
 				})
 			});
@@ -445,19 +496,19 @@ rhit.AdminPageController = class {
 		//*-----------------------------------------------------------------------------------------
 
 		document.querySelector(`#inputBusinessName`).addEventListener('change', (event) => {
-			console.log(event.target.value);
+			//console.log(event.target.value);
 			rhit.spManager.updateString(rhit.STORE_KEY_BUSINESS_NAME, event.target.value);
 		});
 		document.querySelector(`#inputTagLine`).addEventListener('change', (event) => {
-			console.log(event.target.value);
+			//console.log(event.target.value);
 			rhit.spManager.updateString(rhit.STORE_KEY_TAGLINE, event.target.value);
 		});
 		document.querySelector(`#inputGeneralInfo`).addEventListener('change', (event) => {
-			console.log(event.target.value);
+			//console.log(event.target.value);
 			rhit.spManager.updateString(rhit.STORE_KEY_GENERAL_INFO, event.target.value);
 		});
 		document.querySelector(`#inputAnnouncement`).addEventListener('change', (event) => {
-			console.log(event.target.value);
+			//console.log(event.target.value);
 			rhit.spManager.updateString(rhit.STORE_KEY_ANNOUNCEMENT, event.target.value);
 		});
 		document.querySelector(`#submitAddEvent`).onclick = (event) => {
@@ -473,6 +524,20 @@ rhit.AdminPageController = class {
 			document.querySelector(`#newEventLocation`).value = "";
 			document.querySelector(`#newEventDate`).value = "";
 		});
+		document.querySelector(`#submitAddItem`).onclick = (event) => {
+			const iTitle = document.querySelector(`#newItemTitle`).value;
+			const iPrice = document.querySelector(`#newItemPrice`).value;
+			const iDescription = document.querySelector(`#newItemDescription`).value;
+			if (iTitle.length > 0) {
+				rhit.fbItemsManager.add(iTitle, true, iPrice, iDescription);
+			}
+		};
+		$("#addPost").on("show.bs.modal", (event) => {
+			document.querySelector(`#newItemTitle`).value = "";
+			document.querySelector(`#newItemPrice`).value = "$";
+			document.querySelector(`#newItemDescription`).value = "";
+			document.querySelector(`#tempItemImage`).hidden = true;
+		});
 
 
 
@@ -480,6 +545,7 @@ rhit.AdminPageController = class {
 
 
 		rhit.spManager.beginListening(this.updateView.bind(this));
+		rhit.fbItemsManager.beginListening(this.updateItemView.bind(this));
 	}
 
 	updateView() {
@@ -492,7 +558,7 @@ rhit.AdminPageController = class {
 		document.getElementById("announcementIMG").src = store_info.announcementImg;
 		//*This uploads SLIDE show images from FB----------------------------------------------------------------------
 		const newSlideList = htmlToElement(' <div id="slideShowIMGContainer"></div>');
-		console.log(store_info.slideShow.length);
+		//console.log(store_info.slideShow.length);
 		this._slideShowLength = store_info.slideShow.length + 1;
 		for (let i = 0; i < store_info.slideShow.length; i++) {
 
@@ -511,14 +577,14 @@ rhit.AdminPageController = class {
 
 		//* this uploads events from firebase---------------------------
 		const newEventList = htmlToElement(`<div id="eventContainer"></div>`);
-		console.log(rhit.spManager._eventDocSnapshot);
+		//console.log(rhit.spManager._eventDocSnapshot);
 		for (let i = 0; i < rhit.spManager.eventLength; i++) {
 			const eventC = rhit.spManager.getEventAtIndex(i);
 			const newEvent = this._createEventRow(eventC);
 			const newEventBtn = htmlToElement(`<button type="button" class="btn btn-danger">Delete</button>`);
 			newEventBtn.onclick = (event) => {
 				rhit.spManager._deleteEvent(eventC.id);
-				console.log("Deleting event");
+				//console.log("Deleting event");
 			}
 			newEventList.appendChild(newEvent);
 			newEventList.appendChild(newEventBtn);
@@ -534,7 +600,7 @@ rhit.AdminPageController = class {
 
 		//*This uploads emails----------------------------------------------------------------------
 		const newEmailList = htmlToElement(' <div id="emailListContainer"></div>');
-		console.log(store_info.emailList.length);
+		//console.log(store_info.emailList.length);
 		for (let i = 0; i < store_info.emailList.length; i++) {
 
 			const newEmail = this._createEmail(store_info.emailList[i]);
@@ -550,6 +616,33 @@ rhit.AdminPageController = class {
 		oldList.parentElement.appendChild(newEmailList);
 		//*----------------------------------------------------------------------------
 
+
+
+	}
+	updateItemView() {
+		//* this uploads items from firebase-------------------------------
+		console.log(rhit.fbItemsManager.getItemAtIndex(0));
+		console.log("update items called");
+		const newItemsList = htmlToElement('<div id="itemContainer"></div>');
+		console.log("items collection length: ", rhit.fbItemsManager.length);
+		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
+			const item = rhit.fbItemsManager.getItemAtIndex(i);
+			const newCard = this._createItem(item);
+			const deleteCard = htmlToElement(`<a href="#" class="btn btn-primary">Delete</a>`);
+			deleteCard.onclick = (event) => {
+				rhit.fbItemsManager._deleteItem(item.id);
+				console.log("Delete item");
+			}
+			newItemsList.appendChild(newCard);
+			newItemsList.appendChild(deleteCard);
+			newItemsList.appendChild(htmlToElement(`<hr>`));
+
+		}
+		const oldItemsList = document.querySelector("#itemContainer");
+		console.log(newItemsList);
+		oldItemsList.removeAttribute("id");
+		oldItemsList.hidden = true;
+		oldItemsList.parentElement.appendChild(newItemsList);
 	}
 	_createEmail(email) {
 
@@ -581,18 +674,21 @@ rhit.AdminPageController = class {
 	 	 </div>
 		 `)
 	}
+	_createItem(item) {
+		//console.log("HEREEEEEEEEEEEEEEEE");
+		return htmlToElement(`<div class="row">
+              <div class="col">
+                <img src="${item.image}" alt="product has no image" style="max-width: 10vw;">
+              </div>
+              <div class="col-5">
+                <h5>${item.name}</h5>
+              </div>
+              <div class="col">
+                <h5>${item.price}</h5>
+              </div>
+            </div>`);
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
 // ! ------------------------------Sign In Page Controller-------------------
 rhit.SignInPageController = class {
 	constructor() {
@@ -600,15 +696,13 @@ rhit.SignInPageController = class {
 	}
 	updateSignPageInfo() {
 		const store_info = rhit.spManager.setStoreInfo();
-		console.log('typeof store_info :>> ', store_info.businessName);
+		//console.log('typeof store_info :>> ', store_info.businessName);
 		document.getElementById("businessNameFillerTitle").innerHTML = store_info.businessName;
 		document.getElementById("businessNameFillerA").innerHTML = `   ${store_info.businessName}`;
 	}
 
 }
 // !-----------------------------Firebase Auth Manager ------------------------
-
-
 rhit.FbAuthManager = class {
 	constructor() {
 		this._user = null;
@@ -623,32 +717,32 @@ rhit.FbAuthManager = class {
 
 			if (user) {
 				this._email = user.email;
-				console.log('user :>> ', this._email);
+				//console.log('user :>> ', this._email);
 				if (this._email) {
 					let documentRef = this._ref.doc(this._email);
 
 					documentRef.onSnapshot((doc) => {
 						if (doc.exists) {
-							console.log("document Exsists!");
+							//console.log("document Exsists!");
 							this._Admin = doc.data().isAdmin;
-							//console.log('imageOwner :>> ', this.imageOwner);
+							////console.log('imageOwner :>> ', this.imageOwner);
 						} else {
-							console.log("user is not yet created");
+							//console.log("user is not yet created");
 							this.addUser(this._email);
-							console.log("user created")
+							//console.log("user created")
 						}
 					});
 				} else {
-					console.log("User is anonymous");
+					//console.log("User is anonymous");
 				}
 
 				// User is signed in, see docs for a list of available properties
 				// https://firebase.google.com/docs/reference/js/firebase.User
-				//console.log(`ID :>>`, user.uid);
+				////console.log(`ID :>>`, user.uid);
 
 				// ...
 			} else {
-				console.log(`there is no user signed in`);
+				//console.log(`there is no user signed in`);
 				// User is signed out
 				// ...
 			}
@@ -663,7 +757,7 @@ rhit.FbAuthManager = class {
 			[rhit.USER_ADDRESS]: null,
 			[rhit.USERS_CART]: new Array(),
 		}).catch((error) => {
-			console.log(`error writing document:`, error);
+			//console.log(`error writing document:`, error);
 		});
 	}
 	get isAdmin() {
@@ -698,31 +792,82 @@ rhit.FbItemsManager = class {
 		this._documentSnapshots = [];
 		this.ref = firebase.firestore().collection("Items");
 		this._unsubscribe = null;
+		this._tempImage = null;
 	}
-	add(image, name, handmade, price, description) {
-		this.ref.add({
-			["price"]: price,
-			["image"]: image,
-			["name"]: name,
-			["handmade"]: handmade,
-			["available"]: true,
-			["numSales"]: 0,
-			["numGifted"]: 0,
-			["description"]: description,
-			["addedDate"]: firebase.firestore.Timestamp.now(),
-		});
+	add(name, handmade, price, description) {
+		var image = "";
+		if (this._tempImage != null) {
+
+			const storageREF = firebase.storage().ref().child(`${this._tempImage.name}Item`);
+			storageREF.put(this._tempImage).then((uploadTaskSnapshot) => {
+				//console.log("the file has been uploaded");
+				storageREF.getDownloadURL().then((downloadURL) => {
+					//console.log("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
+					image = downloadURL;
+					this.ref.add({
+						["price"]: price,
+						["image"]: image,
+						["name"]: name,
+						["handmade"]: handmade,
+						["available"]: true,
+						["numSales"]: 0,
+						["numGifted"]: 0,
+						["description"]: description,
+						["addedDate"]: firebase.firestore.Timestamp.now(),
+					});
+					console.log(downloadURL);
+					console.log(image);
+					//rhit.spManager.updateString(rhit.STORE_KEY_ANNOUNCEMENT_IMG, downloadURL);
+
+				})
+			});
+
+		} else {
+			this.ref.add({
+				["price"]: price,
+				["image"]: "",
+				["name"]: name,
+				["handmade"]: handmade,
+				["available"]: true,
+				["numSales"]: 0,
+				["numGifted"]: 0,
+				["description"]: description,
+				["addedDate"]: firebase.firestore.Timestamp.now(),
+			});
+
+		};
+
+		this._tempImage = null;
+	}
+	_setTempImage(pointer) {
+		console.log("hereeeeeeeeeeeeee");
+		this._tempImage = pointer;
 	}
 
 	beginListening(changeListener) {
+		//console.log("listening to items manager");
 		let query = this.ref.orderBy("addedDate", "desc")
 		this._unsubscribe = query.onSnapshot((querySnapshot) => {
 			this._documentSnapshots = querySnapshot.docs;
+			//console.log(this._documentSnapshots);
 			changeListener();
 		});
 	}
 
 	stopListening() {
 		this._unsubscribe();
+	}
+	get length() {
+		return this._documentSnapshots.length;
+	}
+	_deleteItem(id) {
+		this.ref.doc(id).delete()
+			.then(function () {
+				//console.log("doc deleted");
+				//window.location.href = "/list.html";
+			})
+			.catch(function (error) {});
+
 	}
 
 	getItemAtIndex(index) {
@@ -737,12 +882,12 @@ rhit.CartPageController = class {
 	constructor() {
 
 		// document.querySelector("#menuShowAllQuotes").addEventListener("click", (event) => {
-		//     console.log("Show all quotes");
+		//     //console.log("Show all quotes");
 		//     window.location.href = "/list.html";
 		// });
 
 		// document.querySelector("#menuShowMyQuotes").addEventListener("click", (event) => {
-		//     console.log("Show my quotes");
+		//     //console.log("Show my quotes");
 		//     window.location.href = `/list.html?uid=${rhit.fbAuthManager.uid}`;
 		// });
 
@@ -779,9 +924,9 @@ rhit.CartPageController = class {
 	}
 
 	updateList() {
-		console.log("i need to update");
-		console.log("num quotes = ", rhit.fbMovieQuotesManager.length);
-		console.log("ex quote: ", rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(0));
+		//console.log("i need to update");
+		//console.log("num quotes = ", rhit.fbMovieQuotesManager.length);
+		//console.log("ex quote: ", rhit.fbMovieQuotesManager.getMovieQuoteAtIndex(0));
 
 		//make a new quoteListContainer
 		const newList = htmlToElement('<div id="quoteListContainer"></div>');
@@ -791,7 +936,7 @@ rhit.CartPageController = class {
 			const newCard = this._createCard(mq);
 
 			newCard.onclick = (event) => {
-				// console.log(`You clicked on ${mq.id}`);
+				// //console.log(`You clicked on ${mq.id}`);
 				// rhit.storage.setMovieQuoteID(mq.id);
 
 				window.location.href = `/moviequote.html?id=${mq.id}`;
@@ -809,27 +954,32 @@ rhit.CartPageController = class {
 }
 // ! ----------------------Intializing pages function-------------------------------------------
 rhit.initializePage = function () {
-	console.log("-----intializing-------");
+	//console.log("-----intializing-------");
 	rhit.spManager = new rhit.SPManager();
 	rhit.spManager.beginListening(() => {
-		console.log("updating store info on all pages");
+		//console.log("updating store info on all pages");
 		rhit.storeNavUpdate = new rhit.StoreNavUpdate();
 
 	});
+	rhit.fbItemsManager = new rhit.FbItemsManager();
+	rhit.fbItemsManager.beginListening(() => {
+		//console.log("updating store items");
+		//rhit.storeNavUpdate = new rhit.StoreNavUpdate();
 
+	});
 	if (document.querySelector("#signInPage")) {
-		//console.log("On the login page");
+		////console.log("On the login page");
 		rhit.startFirebaseUI();
 
 		new rhit.SignInPageController();
 	}
 	if (document.querySelector("#storePage")) {
-		//console.log("On the login page");
+		////console.log("On the login page");
 		rhit.fbItemsManager = new rhit.FbItemsManager();
 		new rhit.StorePageController();
 	}
 	if (document.querySelector("#adminPage")) {
-		//console.log("On the login page");
+		////console.log("On the login page");
 		new rhit.AdminPageController();
 	}
 
@@ -843,11 +993,11 @@ rhit.initializePage = function () {
 //! ------------------Main -----------------/
 /** function and class syntax examples */
 rhit.main = function () {
-	console.log("Ready4");
+	//console.log("Ready4");
 
 	rhit.fbAuthManager = new rhit.FbAuthManager();
 	rhit.fbAuthManager.beginListening(() => {
-		console.log(`The auth state has changed.   isSignedIn = ${rhit.fbAuthManager.isSignedIn}`);
+		//console.log(`The auth state has changed.   isSignedIn = ${rhit.fbAuthManager.isSignedIn}`);
 		rhit.initializePage()
 	})
 
@@ -855,7 +1005,7 @@ rhit.main = function () {
 };
 
 rhit.startFirebaseUI = function () {
-	console.log("firebaseUI building");
+	//console.log("firebaseUI building");
 	//if (!this.fbAuthManager.isSignedIn) {
 
 	var uiConfig = {

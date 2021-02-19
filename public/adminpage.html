@@ -13,7 +13,7 @@
 <body>
   <nav class="navbar navbar-dark fixed-top">
     <div>
-      <img id="businessLOGO" src="" width=30vh height="30 vh">
+      <img id="businessLOGO" src="">
       <a id="businessNameFillerA" class="navbar-brand" href="#">&nbsp;&nbsp;</a>
     </div>
     <div style="float: right;">
@@ -21,7 +21,7 @@
     </div>
   </nav>
   <div id="adminPage" class="container page-container">
-    <div id="storeGeneral" style="margin-top: 12vh;">
+    <div id="storeGeneral" style="margin-top: 20vh;">
       <!--Business Name field-->
       <label for="inputBusinessName" class="bmd-label-static">Bussiness Name:</label>
       <input type="businessName" class="form-control" id="inputBusinessName" value="">
@@ -55,7 +55,7 @@
       <textarea id="inputAnnouncement" type="text" class="form-control" rows="2" value=""></textarea>
       <!--Announce IMG-->
       <label for="inputAnnouncementFile" class="bmd-label-static">Announcement Image:</label>
-      <div class="card w-50" style="margin-top: 1rem;" style="justify-content: center;">
+      <div class="card w-50" style="display: block; margin: auto;" style="justify-content: center;">
         <div class="card-body">
           <img id="announcementIMG" src="" class="card-img-top" alt="announcementIMG">
           <div style="text-align: center;">
@@ -70,6 +70,11 @@
         <button class="btn btn-dark" data-toggle="modal" data-target="#editEvents">Events<i
             class="material-icons">arrow_drop_down</i></button>
       </div>
+      <!--Items-->
+      <div style="display: block; margin: 1 px auto; text-align: center;">
+        <button class="btn btn-dark" data-toggle="modal" data-target="#editItems">List of Products<i
+            class="material-icons">arrow_drop_down</i></button>
+      </div>
 
     </div>
 
@@ -80,6 +85,78 @@
     <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addPost">
       <i class="material-icons">note_add</i>
     </button>
+  </div>
+
+  <!-- Product Item List -->
+  <div class="modal fade" id="editItems" tabindex="-1" role="dialog" aria-labelledby="Edit Items" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div id="editItemModalContent" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Items </h5>
+        </div>
+        <div class="modal-body">
+          <div id="itemListContainer">
+            <div class="row">
+              <div class="col">
+                <h5>Image</h5>
+              </div>
+              <div class="col-5">
+                <h5>Name</h5>
+              </div>
+              <div class="col">
+                <h5>Price</h5>
+              </div>
+            </div>
+            <hr>
+            <div id="itemContainer">
+
+            </div>
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPost">Add
+            Item</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Add Item to Item list-->
+  <div class="modal fade bd-example-modal-sm" id="addPost" tabindex="-1" role="dialog" aria-labelledby="add Post"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+      <div class="modal-content " style="width: 50vh; display: block; margin: auto;">
+        <div class="modal-header">
+          <h5 class="modal-title">Add new item</h5>
+        </div>
+        <div class="modal-body">
+          <div id="addItemListContainer">
+            <label for="newItemTitle" class="bmd-label-static">Name</label>
+            <input type="text" class="form-control" id="newItemTitle">
+            <label for="newItemPrice" class="bmd-label-static">Price</label>
+            <input type="text" class="form-control" id="newItemPrice" value="$">
+            <label for="newItemDescription" class="bmd-label-static">Description</label>
+            <textarea id="newItemDescription" class="form-control" type="text" class="form-control" rows=2>
+
+            </textarea>
+            <hr>
+            <div style="justify-content: center;">
+              <img id="tempItemImage" src="" alt="no image added" hidden
+                style="max-width: 30vw; display: block; margin: auto;">
+              <button id="addItemImage" type="button" class="btn btn-success btn-block">Add
+                Item Image</button>
+            </div>
+            <input id="inputItemImage" type="file" hidden>
+
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="button" id="submitAddItem" class="btn btn-primary" data-dismiss="modal">SUBMIT</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Slide Show List -->
@@ -116,6 +193,9 @@
       </div>
     </div>
   </div>
+
+
+
   <!-- Modal Event List -->
   <div class="modal fade" id="editEvents" tabindex="-1" role="dialog" aria-labelledby="Edit Events" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
