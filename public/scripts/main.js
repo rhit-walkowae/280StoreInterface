@@ -99,10 +99,12 @@ rhit.StorePageController = class {
 			//console.log("hello going to adminpage");
 			window.location.href = `/adminpage.html`;
 		});
-		document.querySelector("#shoppingCartBtn").addEventListener("click", (event) => {
-			//console.log("hello going to adminpage");
-			window.location.href = `/cart.html`;
-		});
+		// document.querySelector("#addToCart").addEventListener("click", (event) => {
+		// 	//console.log("hello going to adminpage");
+		// 	const itemId = parseInt(document.dataset.dataId);
+		// 	console.log(itemId);
+		// });
+		
 
 		rhit.spManager.beginListening(this.updateStoreInfo.bind(this));
 		rhit.fbItemsManager.beginListening(this.updateItems.bind(this));
@@ -168,9 +170,18 @@ rhit.StorePageController = class {
 		console.log("items collection length: ", rhit.fbItemsManager.length);
 		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
 			const item = rhit.fbItemsManager.getItemAtIndex(i);
-			const newCard = this._createCard(item);
-			newCard.onclick = (event) => {
-				console.log("To do: add to cart");
+			
+			// const cardAddBtn = htmlToElement(`<a id="${item.id}" class="btn btn-primary">Add to cart</a>`);
+			const cardAddBtn = `<a id="${item.id}" class="btn btn-primary">Add to cart</a>`;
+			// console.log("cardAddBtn: ", cardAddBtn);
+			// cardAddBtn.onclick = (event) => {
+			// 	console.log(item.id);
+
+			// }
+			const newCard = this._createCard(item, cardAddBtn);
+			console.log("cardAddBtn: ", cardAddBtn);
+			cardAddBtn.onclick = (event) => {
+				console.log(item.id);
 			}
 			newItemsList.appendChild(newCard);
 		}
@@ -193,8 +204,8 @@ rhit.StorePageController = class {
 	}
 
 
-	_createCard(item) {
-		console.log("HEREEEEEEEEEEEEEEEE");
+	_createCard(item,addBtn) {
+		console.log("button html: ", addBtn);
 		return htmlToElement(`<div class="col-md-4" style="margin-bottom: 15px;">
 		<div class="card h-100">
 		 
@@ -207,18 +218,13 @@ rhit.StorePageController = class {
 			
 		  </div>
 		  <div class="card-footer text-muted">
-		  <a href="#" class="btn btn-primary">Add to cart</a>
-  </div>
+			  <div>
+			  <a id="BgDRit6lHnw2uFe16ONv" class="btn btn-primary">Add to cart</a>
+				  ${addBtn} <p>${item.name}</p>
+			</div>
+  		  </div>
 		</div>
-	  </div>`)
-		// 	return htmlToElement(`<div class="card">
-		// 	<img src="${item.image}" class="card-img-top" alt="image not available at this time">
-		// 	<div class="card-body">
-		// 	  <h5 class="card-title">${item.name}</h5>
-		// 	  <p class="card-text">${item.description}</p>
-		// 	  <p class="card-text">${item.price}<small class="text-muted"> Available = ${item.available}</small></p>
-		// 	</div>
-		//   </div>`);
+	  </div>`);
 
 	}
 	_createEventRow(eventItem) {
