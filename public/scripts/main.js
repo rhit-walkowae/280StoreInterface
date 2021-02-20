@@ -206,16 +206,13 @@ rhit.StorePageController = class {
 		console.log("items collection length: ", rhit.fbItemsManager.length);
 		for (let i = 0; i < rhit.fbItemsManager.length; i++) {
 			const item = rhit.fbItemsManager.getItemAtIndex(i);
-
-			// const cardAddBtn = htmlToElement(`<a id="${item.id}" class="btn btn-primary">Add to cart</a>`);
 			const cardAddBtn = htmlToElement(`<div class="card-footer text-muted">
 			<div>
 			<a id="${item.id}" class="btn btn-primary">Add to cart</a>
 		  </div>
 		  </div>`);
-			// console.log("cardAddBtn: ", cardAddBtn);
 			const newCard = this._createCard(item, cardAddBtn);
-			//console.log("cardAddBtn: ", cardAddBtn);
+		
 			cardAddBtn.onclick = (event) => {
 				console.log(item.id);
 				rhit.fbAuthManager.addCartArray(item.id);
